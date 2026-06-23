@@ -1710,11 +1710,7 @@ async function handleAdminLogin() {
     }
     return;
   } catch (err) {
-    if (adminNumber === "1234" && adminPassword === "1234") {
-      error.textContent = "API 서버에 연결할 수 없습니다. showup-server를 켜고 다시 로그인하세요.";
-    } else {
-      error.textContent = err.message || "관리자 번호 또는 비밀번호가 잘못되었습니다";
-    }
+    error.textContent = "로그인에 실패했습니다";
   }
 }
 
