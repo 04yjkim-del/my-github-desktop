@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>show up admin</title>
+    <link rel="stylesheet" href="admin.css?v=proto-v115" />
+  </head>
+  <body>
+    <section class="admin-login" id="adminLogin">
+      <div class="admin-login-card">
+        <div class="brand login-brand">
+          <strong>show<br />up</strong>
+          <span>ADMIN</span>
+        </div>
+        <h1>관리자 로그인</h1>
+        <label>
+          관리자 번호
+          <input id="adminNumber" inputmode="numeric" autocomplete="username" placeholder="관리자 번호" />
+        </label>
+        <label>
+          비밀번호
+          <input id="adminPassword" type="password" autocomplete="current-password" placeholder="비밀번호" />
+        </label>
+        <button id="adminLoginButton">로그인</button>
+        <p id="adminLoginError" class="login-error"></p>
+        <p id="adminConnectionStatus" class="login-status">API 서버 연결 확인 중...</p>
+        <small>브라우저 주소는 <strong>http://localhost:8080/admin.html</strong> 이어야 합니다. (파일 더블클릭 X)</small>
+        <small>관리자 번호: 1234 / 비밀번호: 1234 · API: localhost:3000</small>
+      </div>
+    </section>
+
+    <main class="admin-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <strong>show<br />up</strong>
+          <span>ADMIN</span>
+        </div>
+
+          <div class="admin-profile">
+          <span id="adminProfileRole">현재 권한</span>
+          <strong id="adminProfileName">관리자</strong>
+          <small id="adminProfileMeta">로그인 후 표시됩니다</small>
+        </div>
+
+        <nav class="side-nav" aria-label="관리자 메뉴">
+          <button class="is-active" data-admin-section="dashboard">처리할 일</button>
+          <button data-admin-section="permissions">관리자 권한</button>
+          <button data-admin-section="videos">영상 검수</button>
+          <button data-admin-section="reports">신고 처리</button>
+          <button data-admin-section="comments">댓글 삭제</button>
+          <button data-admin-section="vote">투표 관리</button>
+          <button data-admin-section="predictions">BET 예측</button>
+          <button data-admin-section="payouts">상금 지급</button>
+          <button data-admin-section="users">회원 관리</button>
+        </nav>
+      </aside>
+
+      <section class="content">
+        <header class="topbar">
+          <div>
+            <p>운영 콘솔</p>
+            <h1 id="adminTitle">오늘 처리해야 할 일</h1>
+          </div>
+          <div class="admin-actions">
+            <input id="adminSearch" type="search" placeholder="회원, 영상, 신고 검색" />
+            <button type="button" class="secondary admin-logout-button" id="adminLogoutButton">로그아웃</button>
+          </div>
+        </header>
+
+        <section class="admin-section is-visible" id="dashboard">
+          <section class="task-grid" aria-label="오늘 처리해야 할 일">
+            <article>
+              <span>검수 대기 영상</span>
+              <strong id="dashVideosPending">-</strong>
+              <button data-admin-section="videos">영상 검수하기</button>
+            </article>
+            <article>
+              <span>신고 접수</span>
+              <strong id="dashReportsOpen">-</strong>
+              <button data-admin-section="reports">신고 처리하기</button>
+            </article>
+            <article>
+              <span>댓글 검토</span>
+              <strong id="dashCommentsFlagged">-</strong>
+              <button data-admin-section="comments">댓글 삭제하기</button>
+            </article>
+            <article>
+              <span>투표 확정 대기</span>
+              <strong id="dashVoteConfirmPending">-</strong>
+              <button data-admin-section="vote">TOP10 확정하기</button>
+            </article>
+            <article>
+              <span>상금 지급 검토</span>
+              <strong id="dashPayoutsReviewing">-</strong>
+              <button data-admin-section="payouts">상금 지급 검토하기</button>
+            </article>
+          </section>
+
+          <section class="panel">
+            <h2>빠른 작업</h2>
+            <div class="quick-actions">
+              <button data-admin-section="videos">영상 검수하기</button>
+              <button data-admin-section="reports">신고 처리하기</button>
+              <button data-admin-section="vote">TOP10 확정하기</button>
+              <button data-admin-section="payouts">상금 지급 검토하기</button>
+            </div>
+          </section>
+        </section>
+
+        <section class="admin-section" id="permissions">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <p>관리자 권한</p>
+                <h2>현재 계정은 최고 관리자입니다</h2>
+              </div>
+              <span class="status live">전체 가능</span>
+            </div>
+            <div class="permission-grid">
+              <article class="is-current">
+                <strong>최고 관리자</strong>
+                <span>전체 가능 / 최종 확정 가능</span>
+              </article>
+              <article>
+                <strong>운영 관리자</strong>
+                <span>영상 / 신고 / 투표 가능</span>
+              </article>
+              <article>
+                <strong>검수 관리자</strong>
+                <span>영상 승인 / 반려 가능</span>
+              </article>
+              <article>
+                <strong>정산 관리자</strong>
+                <span>상금 지급만 가능</span>
+              </article>
+            </div>
+            <p class="note">
+              신고 처리, 영상 검수, 투표 시작/종료, TOP10/TOP3/우승자 확정, 상금 지급 상태 변경은 모두 관리자 권한 아래에서 실행됩니다.
+            </p>
+          </div>
+
+          <div class="panel admin-account-panel">
+            <div class="panel-head">
+              <div>
+                <p>계정 보안</p>
+                <h2>비밀번호 변경</h2>
+              </div>
+              <span class="status warn" id="adminPasswordStatusBadge">3개월 주기</span>
+            </div>
+            <p class="admin-password-notice" id="adminPasswordChangeNotice" hidden>
+              비밀번호 변경 기한이 지났습니다. 다른 메뉴를 쓰기 전에 새 비밀번호를 설정해 주세요.
+            </p>
+            <form class="admin-password-form" id="adminPasswordForm">
+              <label>
+                현재 비밀번호
+                <input id="adminCurrentPassword" type="password" autocomplete="current-password" placeholder="현재 비밀번호" />
+              </label>
+              <label>
+                새 비밀번호
+                <input id="adminNewPassword" type="password" autocomplete="new-password" placeholder="8자 이상" minlength="8" />
+              </label>
+              <label>
+                새 비밀번호 확인
+                <input id="adminNewPasswordConfirm" type="password" autocomplete="new-password" placeholder="새 비밀번호 다시 입력" minlength="8" />
+              </label>
+              <button type="submit" class="primary-button" id="adminChangePasswordButton">비밀번호 변경</button>
+              <p id="adminPasswordChangeError" class="login-error"></p>
+            </form>
+            <p class="note">관리자 JWT는 8시간 후 만료됩니다. 공용 PC에서는 작업 후 로그아웃하세요.</p>
+          </div>
+        </section>
+
+        <section class="admin-section" id="videos">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <p>영상 검수 기준</p>
+                <h2>AI 반려 영상만 관리자에게 전달</h2>
+              </div>
+              <span class="status warn" id="videoPendingBadge">불러오는 중</span>
+            </div>
+            <p class="note">
+              AI가 문제 없음으로 판단한 영상은 자동 공개됩니다. 다만 <strong id="aiSampleRateNote">AI 통과 영상의 3%가 랜덤 샘플</strong>로 관리자 검수 대기열에 들어갑니다. AI가 문제 있음으로 판단한 영상은 관리자 검토로 이동합니다. 이 화면에서는 <strong>승인·반려</strong>만 합니다. 이미 공개된 영상을 내리려면 <strong>신고 처리 → 영상 숨김</strong>을 사용합니다.
+            </p>
+            <div class="table" id="videoTable"></div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="reports">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <p>신고 처리 결과</p>
+                <h2>처리 결과를 명확하게 남기기</h2>
+              </div>
+              <span class="status warn" id="reportOpenBadge">불러오는 중</span>
+            </div>
+            <p class="note">
+              신고 처리 버튼을 누르면 신고 상태와 대상 영상, 댓글, 계정 상태가 함께 변경되는 구조로 서버에 연결해야 합니다. <strong>영상 숨김</strong>은 공개 중인 영상만 피드·투표에서 내립니다(작성자 마이페이지에는 남을 수 있음). <strong>영상 삭제</strong>는 완전 제거입니다.
+            </p>
+            <div class="table" id="reportTable"></div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="comments">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <p>댓글 삭제</p>
+                <h2>신고·검토 대상 댓글 관리</h2>
+              </div>
+              <span class="status warn" id="commentPendingCount">3건 검토</span>
+            </div>
+            <p class="note">
+              댓글 본문과 연결된 영상·작성자를 확인한 뒤 삭제합니다. 삭제 시 앱 댓글 목록에서도 제거되며, 숨김은 작성자 본인에게만 보이게 두는 프로토타입 동작입니다.
+            </p>
+            <div class="table comment-table" id="commentTable"></div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="vote">
+          <div class="section-grid">
+            <article class="panel wide">
+              <div class="panel-head">
+                <div>
+                  <p>투표 관리</p>
+                  <h2>주간 투표 자동 일정</h2>
+                </div>
+                <span class="status live" id="voteStatusBadge">대기</span>
+              </div>
+              <p class="vote-phase-line" id="votePhaseStatus">현재 단계: 대기 · 금 18:00에 일반 투표 자동 시작</p>
+              <p class="vote-auto-clock" id="voteAutoClock"></p>
+              <ul class="vote-auto-schedule" id="voteAutoScheduleList"></ul>
+              <p class="note">
+                Vote start/end follows the <strong>US Eastern (ET) weekly schedule</strong> automatically. Admins only confirm TOP20 review, fraud removal, TOP10/TOP3, and <strong>winners</strong>.
+              </p>
+              <div class="step-list" id="voteSteps"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <h2>현재 후보 TOP20</h2>
+                <div class="candidate-head-badges">
+                  <span class="status" id="candidateCountBadge">20명</span>
+                  <span class="status warn" id="candidateExcludeBadge">제외 없음</span>
+                </div>
+              </div>
+              <p class="note">투표수 기준 실시간 집계. <strong>제외</strong> 체크한 후보는 TOP10/TOP3/우승 확정에서 빠집니다.</p>
+              <p class="candidate-exclude-preview" id="candidateExcludePreview" hidden></p>
+              <div class="candidate-list" id="candidateList"></div>
+              <div class="candidate-excluded-panel" id="candidateExcludedPanel" hidden>
+                <h3>제외한 후보</h3>
+                <p class="note">제외 체크한 후보는 옆 TOP20에서 빠집니다. 해제하려면 체크를 다시 끄세요.</p>
+                <div class="candidate-list candidate-excluded-list" id="candidateExcludedList"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="admin-section" id="predictions">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <p>BET 예측</p>
+                <h2>주간 순위 예측 관리</h2>
+              </div>
+              <span class="status warn" id="predictionSummaryBadge">불러오는 중</span>
+            </div>
+            <p class="note">
+              User BET (predict 1st–3rd) is saved on the server Sunday 3:00–6:00 PM ET.
+              <strong>최종 우승자 확정</strong> 후 <strong>정답 판정</strong> → 맞춘 사람 중 <strong>당첨자 추첨</strong> 순서로 처리하세요.
+            </p>
+            <div class="prediction-actions">
+              <button type="button" class="primary-button" id="predictionEvaluateButton" disabled>정답 판정</button>
+              <button type="button" class="secondary" id="predictionDrawButton" disabled>당첨자 추첨 (최대 5명)</button>
+              <button type="button" class="secondary" id="predictionRefreshButton">새로고침</button>
+            </div>
+            <p class="prediction-action-note" id="predictionActionNote"></p>
+            <div class="table prediction-table" id="predictionTable"></div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="payouts">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <p>상금 지급</p>
+                <h2>최종 1, 2, 3등 자동 반영</h2>
+              </div>
+              <span class="status warn" id="payoutReviewCount">불러오는 중</span>
+            </div>
+            <p class="note">
+              투표 종료 후 우승자 1, 2, 3등이 자동으로 상금 지급 대상에 생성됩니다. <strong>18세 미만 · 보호자 미동의 · 예금주 불일치</strong>는 신청 즉시 <strong>지급 보류</strong>됩니다.
+            </p>
+            <div class="table payout-review-table" id="payoutTable"></div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="users">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <p>회원 관리</p>
+                <h2>가입, 인증, 신고, 정지 상태 확인</h2>
+              </div>
+              <span class="status live">검색 가능</span>
+            </div>
+            <p class="note">
+              Signup requires age 13+. Users under 18 need guardian consent for prize claims. Withdrawn account data is deleted after 45 days (legal retention up to 5 years).
+            </p>
+            <div class="panel-subhead">
+              <div>
+                <p>제한 계정</p>
+                <h3>정지 · 영구정지 · 탈퇴 요청</h3>
+              </div>
+              <span class="status warn" id="restrictedUserCount">0명</span>
+            </div>
+            <p class="note">아래 목록에서 <strong>탈퇴 취소</strong>는 계정 복구, <strong>탈퇴 확인</strong>은 회원정보 완전 삭제(되돌릴 수 없음)입니다.</p>
+            <div class="table restricted-user-table" id="restrictedUserTable"></div>
+            <div class="panel-subhead panel-subhead-spaced">
+              <div>
+                <p>전체 회원</p>
+                <h3>검색 · 상세 · 제한 처리</h3>
+              </div>
+            </div>
+            <div class="table" id="userTable"></div>
+          </div>
+        </section>
+
+        <section class="feedback-panel">
+          <h2>운영 피드백</h2>
+          <div class="feedback-grid">
+            <article>
+              <strong>지금 먼저 해야 할 것</strong>
+              <p>영상 검수, 신고 처리, 투표 확정, 상금 지급 검토를 실제 운영 흐름처럼 구체화하는 것이 맞습니다.</p>
+            </article>
+            <article>
+              <strong>상금 지급 (API 연동됨)</strong>
+              <p>상금 지급 메뉴는 실제 DB 데이터를 불러옵니다. 보류 건은 사유 확인 → 검토 재개 → 지급 승인 순서로 처리하세요.</p>
+            </article>
+            <article>
+              <strong>주의점</strong>
+              <p>실제 서비스에서는 관리자 로그인, 권한 제한, 조작 로그가 필수입니다. 특히 상금 지급은 최고 관리자 또는 정산 관리자만 처리해야 합니다.</p>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast" id="adminToast"></div>
+    <script src="admin.js?v=proto-v115"></script>
+  </body>
+</html>

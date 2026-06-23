@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>show up prototype</title>
+    <link rel="stylesheet" href="styles.css?v=proto-v147" />
+  </head>
+  <body class="section-home">
+    <div class="auth-gate" id="authGate">
+      <section class="intro-panel" id="introPanel">
+        <div class="intro-glow" aria-hidden="true"></div>
+        <div class="word-cloud intro-words" aria-hidden="true">
+          <b>TREND</b><b>VIBE</b><b>DROP</b><b>MOVE</b><b>SHOW UP</b>
+        </div>
+        <header class="intro-top">
+          <div class="intro-brand">
+            <div>
+              <strong>WEEKLY DROP</strong>
+              <small>Hot picks · Vote · Prizes</small>
+            </div>
+          </div>
+          <span class="intro-live-pill">LIVE</span>
+        </header>
+        <div class="intro-carousel" id="introCarousel" aria-label="App intro">
+          <div class="intro-track" id="introTrack">
+            <article class="intro-slide is-active" data-intro-slide="0">
+              <div class="intro-slide-card">
+                <span class="intro-slide-num" aria-hidden="true">01</span>
+                <span class="intro-eyebrow">NOW</span>
+                <h2 class="intro-slide-title">What's trending<br /><em class="intro-hit">right now</em></h2>
+                <p class="intro-slide-copy">Reels, challenges, and memes in one place. Scroll to catch the vibe before it's over.</p>
+                <div class="intro-tags" aria-hidden="true"><span>#HotNow</span><span>#ScrollWorthy</span></div>
+              </div>
+            </article>
+            <article class="intro-slide" data-intro-slide="1">
+              <div class="intro-slide-card is-prize">
+                <span class="intro-slide-num" aria-hidden="true">02</span>
+                <span class="intro-eyebrow">BATTLE</span>
+                <h2 class="intro-slide-title"><em class="intro-hit">Online battles</em> <span class="intro-title-slash">/</span> new stage every week</h2>
+                <p class="intro-slide-copy">Post on trend, rack up votes, win TOP prizes. Themes change every weekend.</p>
+                <div class="intro-tags" aria-hidden="true"><span>#TOP3</span><span>#Prizes</span></div>
+              </div>
+            </article>
+            <article class="intro-slide" data-intro-slide="2">
+              <div class="intro-slide-card is-social">
+                <span class="intro-slide-num" aria-hidden="true">03</span>
+                <span class="intro-eyebrow">WATCH</span>
+                <div class="intro-slide-lines">
+                  <p class="intro-line">Predict and win merch.</p>
+                  <p class="intro-line">Like and comment like Instagram.</p>
+                  <p class="intro-line"><em class="intro-hit">Watch and win prizes.</em></p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div class="intro-dots" id="introDots" role="tablist" aria-label="Intro pages">
+          <button type="button" class="is-active" data-intro-dot="0" aria-label="Page 1" aria-selected="true"></button>
+          <button type="button" data-intro-dot="1" aria-label="Page 2"></button>
+          <button type="button" data-intro-dot="2" aria-label="Page 3"></button>
+        </div>
+        <p class="intro-swipe-hint"><span class="intro-swipe-arrow">››</span> SWIPE</p>
+        <p class="intro-cta-line">Ready to join us?</p>
+        <button class="primary-button wide intro-cta" id="startAuthButton">Get started</button>
+      </section>
+
+      <section class="auth-card" id="authCard" hidden>
+        <div class="auth-tabs">
+          <button class="auth-tab is-active" data-auth-tab="login">Login</button>
+          <button class="auth-tab" data-auth-tab="signup">Sign up</button>
+        </div>
+
+        <form class="auth-form auth-view is-active" id="loginView">
+          <h2>Login</h2>
+          <label><span>ID</span><input placeholder="Phone number or ID" autocomplete="username" /></label>
+          <label><span>Password</span><input type="password" placeholder="Password" autocomplete="current-password" /></label>
+          <button type="button" class="primary-button wide" id="loginButton">Login</button>
+          <button type="button" class="link-button" id="forgotButton">Forgot password?</button>
+        </form>
+
+        <form class="auth-form auth-view" id="signupView">
+          <h2>Sign up</h2>
+          <p class="small-copy">Only users aged 13 or older can sign up.</p>
+          <label><span>Name</span><input id="signupNameInput" placeholder="John Doe" autocomplete="name" /></label>
+          <label class="birth-field"><span>Date of birth</span><input id="signupBirthInput" inputmode="numeric" maxlength="10" placeholder="MM/DD/YYYY" /></label>
+          <label><span>Email</span><input id="signupEmailInput" type="email" placeholder="name@example.com" autocomplete="email" required /></label>
+          <p class="signup-field-hint is-error" id="signupEmailHint" hidden></p>
+          <label><span>Username</span><input id="signupUsernameInput" placeholder="showup_name" autocomplete="username" /></label>
+          <p class="signup-field-hint is-error" id="signupUsernameHint" hidden></p>
+          <label><span>ID</span><input id="signupIdInput" placeholder="showup_id" minlength="6" /></label>
+          <p class="signup-field-hint is-error" id="signupIdHint" hidden></p>
+          <label><span>Password</span><input id="signupPasswordInput" type="password" placeholder="8+ chars, include a special character" autocomplete="new-password" /></label>
+          <label><span>Confirm password</span><input id="signupPasswordConfirmInput" type="password" placeholder="Re-enter password" autocomplete="new-password" /></label>
+          <p class="signup-field-hint is-error" id="signupPasswordMismatchHint" hidden></p>
+          <label class="phone-field"><span>Phone</span><input id="phoneInput" inputmode="tel" placeholder="+1 555-010-0000" autocomplete="tel" /></label>
+          <p class="signup-field-hint is-error" id="signupPhoneDuplicateHint" hidden></p>
+          <button type="button" class="phone-auth-btn" id="requestPhoneAuthButton">Verify phone</button>
+          <div id="signupPhoneCodeWrap" class="signup-phone-code" hidden>
+            <div id="signupPhoneCodeEntry" class="signup-phone-code-entry">
+              <label><span id="signupPhoneCodeLabel">Verification code</span><input id="signupPhoneCodeInput" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code" /></label>
+              <button type="button" class="phone-auth-btn" id="signupPhoneCodeVerifyButton">Confirm code</button>
+            </div>
+            <p class="signup-field-hint signup-phone-verified-badge" id="signupPhoneVerifiedBadge" hidden></p>
+          </div>
+          <p class="signup-field-hint" id="signupPhoneCodeHint" hidden></p>
+          <p class="signup-field-hint" id="signupPhoneHint">Tap Verify phone to receive a code, then enter it below.</p>
+          <div class="terms-box">
+            <strong>Terms and policy agreement</strong>
+            <label><input type="checkbox" data-signup-terms="service" data-terms-required /><span class="terms-label-text">Terms of Service [Required]</span></label>
+            <label><input type="checkbox" data-signup-terms="privacy" data-terms-required /><span class="terms-label-text">Privacy Policy [Required]</span></label>
+            <label><input type="checkbox" data-signup-marketing /><span class="terms-label-text">Marketing emails [Optional]</span></label>
+            <div class="terms-link-row">
+              <a class="terms-link terms-external-link" data-legal-url="terms" href="https://showup.app/terms" target="_blank" rel="noopener noreferrer">View Terms of Service</a>
+              <a class="terms-link terms-external-link" data-legal-url="privacy" href="https://showup.app/privacy" target="_blank" rel="noopener noreferrer">View Privacy Policy</a>
+            </div>
+            <p class="signup-policy-note">
+              Users under 17 need guardian consent to change protection settings. Prizes may be subject to taxes under applicable law. Winners under 18 need guardian consent to claim prizes; claims may expire if not completed in time.
+            </p>
+          </div>
+          <p class="signup-field-hint" id="signupReadyHint">Complete required fields, verify your phone, and agree to both required policies to enable Create account.</p>
+          <button type="button" class="primary-button wide" id="signupButton" disabled>Create account</button>
+        </form>
+      </section>
+    </div>
+
+    <main class="app-shell">
+      <header class="app-top">
+        <div>
+          <p>SHOW UP Weekly</p>
+          <h1>Today's hot challenge</h1>
+        </div>
+        <label class="home-profile-search">
+          <span>⌕</span>
+          <input id="homeProfileSearchInput" type="search" placeholder="Search profiles" autocomplete="off" />
+          <select id="homeProfileSearchFilter" class="profile-search-filter" aria-label="Search filter">
+            <option value="all">All</option>
+            <option value="username">Username</option>
+            <option value="name">Display name</option>
+          </select>
+        </label>
+        <button class="notification-button" id="notificationButton" title="Notifications" aria-label="Notifications">
+          <span class="bell-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <path d="M17 20.5c0-5.2 3.2-9.1 8-9.1s8 3.9 8 9.1v6.2c0 2.4 1.5 4.4 3.5 5.4H13.5c2-1 3.5-3 3.5-5.4v-6.2Z"/>
+              <path d="M21 36c.9 1.4 2 2.1 4 2.1s3.1-.7 4-2.1"/>
+              <path d="M25 8.7v3"/>
+            </svg>
+          </span>
+        </button>
+      </header>
+
+      <section class="screen is-visible" id="home">
+        <article class="feed-card hero-card" id="hotHero" role="button" tabindex="0" aria-label="Open today's hot challenge">
+          <div class="word-cloud" aria-hidden="true">
+            <b>TREND</b><b>HYPE</b><b>MOVE</b><b>VOTE</b><b>FAME</b><b>UP</b>
+          </div>
+          <span class="chip">HOT</span>
+          <div class="feed-copy">
+            <h2 id="hotTitle">K-pop Hook Dance</h2>
+            <p id="hotMeta">@dance.signal · views 184K · Like 24K</p>
+          </div>
+          <div class="feed-actions home-feed-actions">
+            <button class="action-button" data-action="like"><span class="action-icon trophy-icon" aria-hidden="true"><svg class="trophy-svg" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="likeGradHome" x1="8" y1="8" x2="36" y2="46" gradientUnits="userSpaceOnUse"><stop stop-color="#ecff7a"/><stop offset=".5" stop-color="#d7ff38"/><stop offset="1" stop-color="#84e8a8"/></linearGradient></defs><path fill-rule="evenodd" class="trophy-fill" d="M8 10H36V14C36 22 33 28.5 22 31.5C11 28.5 8 22 8 14V10ZM19 31.5H25V40.5H19V31.5ZM13.5 40.5H30.5V47H13.5V40.5Z"/><path class="trophy-stroke" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M8 10H36M36 10V14C36 22 33 28.5 22 31.5C11 28.5 8 22 8 14V10M8 14C5.5 14 5.5 19.5 8 19.5M36 14C38.5 14 38.5 19.5 36 19.5M19 31.5V40.5M25 31.5V40.5M13.5 40.5H30.5V47H13.5Z"/></svg></span><span>Like</span></button>
+            <button class="action-button" data-action="comment"><span class="action-icon comment-icon"></span><span>Comment</span></button>
+            <button class="action-button" data-action="complain"><span class="action-icon report-icon">!</span><span>Report</span></button>
+            <button class="action-button" data-action="share"><span class="action-icon share-icon"><img src="assets/share-hand.svg" alt="" /></span><span>Share</span></button>
+          </div>
+        </article>
+
+        <section class="week-card">
+          <div class="week-head">
+            <span>THIS WEEK</span>
+            <strong>Weekly challenge</strong>
+          </div>
+          <div class="prize-stack">
+            <article class="prize-first"><span>1st</span><strong>$1,000</strong></article>
+            <article><span>2nd</span><strong>$500</strong></article>
+            <article><span>3rd</span><strong>$300</strong></article>
+          </div>
+          <div class="week-lines">
+            <div><span>Vote</span><strong>Fri 6PM</strong><small id="voteCountdown">Calculating…</small></div>
+            <div><span>TOP10</span><strong>Sat 6PM</strong><small id="top5Countdown">Calculating…</small></div>
+            <div><span>Final</span><strong>Sun 6PM</strong><small id="finalCountdown">Calculating…</small></div>
+          </div>
+          <div class="reward-strip">
+            <span>Prediction reward</span>
+            <strong>3 winners drawn from correct predictions · $50 gift cards</strong>
+          </div>
+        </section>
+
+        <section class="mini-ranking">
+          <h3>Live ranking TOP3</h3>
+          <div id="homeRanking"></div>
+        </section>
+      </section>
+
+      <section class="screen" id="camera">
+        <article class="camera-live" id="cameraLive">
+          <div class="camera-preview" aria-hidden="true"></div>
+          <div class="camera-vignette" aria-hidden="true"></div>
+          <button type="button" class="camera-close" id="cameraBackButton" aria-label="Back">&lt;</button>
+          <input type="file" id="galleryFileInput" accept="image/*,video/*" hidden />
+          <button class="music-button" id="musicButton" type="button" aria-label="Choose music">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 18V6l10-2v12" />
+              <circle cx="7" cy="18" r="2.5" />
+              <circle cx="17" cy="16" r="2.5" />
+            </svg>
+          </button>
+          <div class="camera-status" id="cameraFacingLabel">Back camera</div>
+          <div class="camera-recording-badge" id="cameraRecordingBadge" hidden>REC 00:00</div>
+          <div class="camera-hints" aria-hidden="true">
+            <span>Up to 1 min</span>
+            <span>No filter</span>
+          </div>
+          <div class="camera-bottom">
+            <button id="galleryButton" class="gallery-pill" type="button" aria-label="Gallery">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4" y="5" width="16" height="14" rx="3" />
+                <path d="m7 16 3.4-3.4a1.4 1.4 0 0 1 2 0L16 16" />
+                <path d="m14 14 1.2-1.2a1.2 1.2 0 0 1 1.7 0L20 16" />
+                <circle cx="9" cy="9" r="1.2" />
+              </svg>
+            </button>
+            <button class="record-button" id="recordButton" type="button" aria-label="Record">
+              <span class="record-button-core" aria-hidden="true"></span>
+            </button>
+            <button id="flipCameraButton" class="flip-camera-button" type="button" aria-label="Flip camera">
+              <span class="flip-camera-icon-wrap" aria-hidden="true">
+                <svg class="flip-camera-icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 7.5V5h2.8M5 5l2.6 2.6a6.2 6.2 0 0 1 10.4 1.6" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M19 16.5V19h-2.8M19 19l-2.6-2.6a6.2 6.2 0 0 1-10.4-1.6" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </button>
+            <button id="saveDropButton" class="drop-side-button save-drop-button" aria-label="save">
+              <svg class="save-bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6.5 4.5H17.5V20L12 12.2L6.5 20V4.5" />
+              </svg>
+            </button>
+            <button id="uploadButton" class="upload-pill">DROP</button>
+            <button id="shareDropButton" class="drop-side-button share-drop-button" aria-label="share">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 16V4" />
+                <path d="m7 9 5-5 5 5" />
+                <path d="M5 14v5h14v-5" />
+              </svg>
+            </button>
+          </div>
+          <div class="status-card" id="uploadStatus"></div>
+        </article>
+      </section>
+
+      <section class="screen" id="vote">
+        <section class="vote-overview">
+          <div class="vote-tools">
+            <label class="home-profile-search vote-profile-search">
+              <span aria-hidden="true">⌕</span>
+              <input id="voteProfileSearchInput" type="search" placeholder="Search profiles" autocomplete="off" />
+            </label>
+            <button class="notification-button" id="voteNotificationButton" title="Notifications" aria-label="Notifications">
+              <span class="bell-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M17 20.5c0-5.2 3.2-9.1 8-9.1s8 3.9 8 9.1v6.2c0 2.4 1.5 4.4 3.5 5.4H13.5c2-1 3.5-3 3.5-5.4v-6.2Z"/>
+                  <path d="M21 36c.9 1.4 2 2.1 4 2.1s3.1-.7 4-2.1"/>
+                  <path d="M25 8.7v3"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+          <section class="week-card vote-week-card">
+            <div class="week-head">
+              <span>THIS WEEK</span>
+              <strong>Weekly challenge</strong>
+            </div>
+            <div class="prize-stack">
+              <article class="prize-first"><span>1st</span><strong>$1,000</strong></article>
+              <article><span>2nd</span><strong>$500</strong></article>
+              <article><span>3rd</span><strong>$300</strong></article>
+            </div>
+            <div class="week-lines">
+              <div><span>Vote</span><strong>Fri 6PM</strong><small id="voteVoteCountdown">Calculating…</small></div>
+              <div><span>TOP10</span><strong>Sat 6PM</strong><small id="voteTop10Countdown">Calculating…</small></div>
+              <div><span>Final</span><strong>Sun 3PM</strong><small id="voteFinalCountdown">Calculating…</small></div>
+            </div>
+            <div class="reward-strip">
+              <span>Prediction reward</span>
+              <strong>5 winners drawn from correct predictions · gift cards</strong>
+            </div>
+            <p class="vote-rule-note">TOP candidates are selected by votes. Views, likes, and comments affect ranking only.</p>
+          </section>
+
+          <section class="mini-ranking vote-mini-ranking">
+            <h3>Live ranking TOP3</h3>
+            <div id="voteHomeRanking"></div>
+          </section>
+        </section>
+
+        <div class="section-head dark-head vote-head">
+          <span>Vote</span>
+          <h2 id="votePhaseTitle">General vote</h2>
+          <p id="votePhaseText">Fri 6PM - Sat 6PM</p>
+        </div>
+        <div class="vote-stage">
+          <article class="is-active"><span>General</span><strong>Fri 6PM</strong></article>
+          <article><span>TOP10</span><strong>Sat 6PM</strong></article>
+          <article><span>Final</span><strong>Sun 3PM</strong></article>
+          <article><span>Close</span><strong>Sun 6PM</strong></article>
+        </div>
+        <div class="candidate-grid" id="candidateGrid"></div>
+      </section>
+
+      <section class="screen" id="predict">
+        <div class="section-head dark-head">
+          <span>BET</span>
+          <h2>Final prediction</h2>
+          <p id="predictScheduleCopy">Sunday 3–6 PM. Pick 1st–3rd in exact order to enter the draw.</p>
+          <p class="predict-lock-note">Predictions cannot be changed after submit</p>
+        </div>
+        <div class="prediction-board">
+          <article class="prediction-slip">
+            <div class="bet-visual">
+              <span>TOP3 final</span>
+              <div class="podium" aria-hidden="true">
+                <i class="place-second"><span class="crown crown-second"></span><b>2</b></i>
+                <i class="place-first"><span class="crown crown-first"></span><b>1</b></i>
+                <i class="place-third"><span class="crown crown-third"></span><b>3</b></i>
+              </div>
+              <p>Pick the exact 1st to 3rd order. 5 winners are drawn from correct predictions.</p>
+            </div>
+            <button class="pick-slot" data-pick-rank="1"><span>1st</span><strong id="pick1">Not selected</strong></button>
+            <button class="pick-slot" data-pick-rank="2"><span>2nd</span><strong id="pick2">Not selected</strong></button>
+            <button class="pick-slot" data-pick-rank="3"><span>3rd</span><strong id="pick3">Not selected</strong></button>
+            <button class="primary-button wide" id="lockPick">Confirm prediction</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="screen" id="ranking">
+        <div class="section-head dark-head">
+          <div class="rank-title-row">
+            <div>
+              <span>RANK</span>
+              <h2>Live ranking</h2>
+            </div>
+            <button class="settings-button gear-button rank-settings-placeholder" title="Settings" aria-label="Settings"></button>
+          </div>
+          <p>TOP10 is shown by default. Tap More to view up to TOP100.</p>
+          <label class="rank-search">
+            <span>⌕</span>
+            <input id="rankSearchInput" type="search" placeholder="Search ranking" autocomplete="off" />
+          </label>
+        </div>
+        <div class="ranking-grid">
+          <article>
+            <h3>Creator TOP100</h3>
+            <div class="rank-list" id="creatorRanks"></div>
+            <button class="ghost-button wide" id="rankingMoreButton">More</button>
+          </article>
+          <article class="winner-card">
+            <h3>Prediction winners</h3>
+            <strong>Announced after Sunday 6PM</strong>
+            <p>Five correct entrants will be drawn for gift cards.</p>
+          </article>
+        </div>
+      </section>
+
+      <nav class="bottom-nav">
+        <button class="nav-item is-active" data-section="home">Feed</button>
+        <button class="nav-item" data-section="vote" id="voteNavButton">Vote</button>
+        <button class="nav-item camera-plus" data-section="camera">DROP</button>
+        <button class="nav-item" data-section="predict" id="predictNavButton">Predict</button>
+        <button class="nav-item" data-section="ranking">Ranking</button>
+        <button class="nav-item" data-profile-tab>Profile</button>
+      </nav>
+    </main>
+
+    <section class="settings-overlay" id="settingsOverlay" aria-hidden="true">
+      <div class="settings-phone">
+        <header class="settings-header">
+          <button id="settingsBackButton" aria-label="Back">‹</button>
+          <h2 id="settingsTitle">Settings and activity</h2>
+          <button id="settingsCloseButton" aria-label="Close">×</button>
+        </header>
+        <main class="settings-content" id="settingsContent"></main>
+      </div>
+    </section>
+
+    <section class="reels-overlay profile-feed-overlay" id="profileFeedOverlay" aria-hidden="true">
+      <article class="reels-view hero-card profile-feed-view" id="profileFeedView">
+        <button type="button" class="profile-feed-back" id="profileFeedBackButton" aria-label="Back">‹</button>
+        <button type="button" class="profile-feed-menu feed-post-menu" id="profileFeedMenuButton" hidden aria-label="Posts 메뉴">⋯</button>
+        <div class="word-cloud" aria-hidden="true">
+          <b>TREND</b><b>HYPE</b><b>MOVE</b><b>VOTE</b><b>FAME</b><b>UP</b>
+        </div>
+        <span class="chip" id="profileFeedChip">Post</span>
+        <div class="reels-copy profile-feed-copy">
+          <h2 id="profileFeedTitle">Challenge</h2>
+          <p id="profileFeedMeta">@creator</p>
+        </div>
+        <div class="feed-actions profile-feed-actions">
+          <button type="button" class="action-button" data-action="like"><span class="action-icon trophy-icon" aria-hidden="true"><svg class="trophy-svg" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="likeGradProfileFeed" x1="8" y1="8" x2="36" y2="46" gradientUnits="userSpaceOnUse"><stop stop-color="#ecff7a"/><stop offset=".5" stop-color="#d7ff38"/><stop offset="1" stop-color="#84e8a8"/></linearGradient></defs><path fill-rule="evenodd" class="trophy-fill" d="M8 10H36V14C36 22 33 28.5 22 31.5C11 28.5 8 22 8 14V10ZM19 31.5H25V40.5H19V31.5ZM13.5 40.5H30.5V47H13.5V40.5Z"/><path class="trophy-stroke" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M8 10H36M36 10V14C36 22 33 28.5 22 31.5C11 28.5 8 22 8 14V10M8 14C5.5 14 5.5 19.5 8 19.5M36 14C38.5 14 38.5 19.5 36 19.5M19 31.5V40.5M25 31.5V40.5M13.5 40.5H30.5V47H13.5Z"/></svg></span><span>Like</span></button>
+          <button type="button" class="action-button" data-action="comment"><span class="action-icon comment-icon"></span><span>Comment</span></button>
+          <button type="button" class="action-button" data-action="complain" id="profileFeedComplainButton"><span class="action-icon report-icon">!</span><span>Report</span></button>
+          <button type="button" class="action-button" data-action="share"><span class="action-icon share-icon"><img src="assets/share-hand.svg" alt="" /></span><span>Share</span></button>
+        </div>
+        <div class="profile-post-menu-panel" id="profilePostMenuPanel" hidden>
+          <button type="button" class="profile-post-menu-backdrop" data-post-menu-close aria-label="메뉴 Close"></button>
+          <div class="profile-post-menu-sheet" role="menu" aria-label="Posts 메뉴">
+            <button type="button" class="profile-post-menu-btn" data-post-menu-action="edit">Edit</button>
+            <button type="button" class="profile-post-menu-btn danger-text" data-post-menu-action="delete">Delete</button>
+            <button type="button" class="profile-post-menu-btn" data-post-menu-close>Cancel</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="reels-overlay" id="reelsOverlay" aria-hidden="true">
+      <article class="reels-view">
+        <button class="reels-close" id="reelsCloseButton" aria-label="Close">×</button>
+        <div class="word-cloud" aria-hidden="true">
+          <b>HOT</b><b>VOTE</b><b>MOVE</b><b>SHOW</b><b>UP</b>
+        </div>
+        <div class="reels-copy">
+          <span class="chip">HOT REELS</span>
+          <h2 id="reelsTitle">K-pop Hook Dance</h2>
+          <p id="reelsMeta">@dance.signal · views 184K · Like 24K</p>
+        </div>
+        <div class="feed-actions">
+          <button class="action-button" data-action="like"><span class="action-icon trophy-icon" aria-hidden="true"><svg class="trophy-svg" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="likeGradReels" x1="8" y1="8" x2="36" y2="46" gradientUnits="userSpaceOnUse"><stop stop-color="#ecff7a"/><stop offset=".5" stop-color="#d7ff38"/><stop offset="1" stop-color="#84e8a8"/></linearGradient></defs><path fill-rule="evenodd" class="trophy-fill" d="M8 10H36V14C36 22 33 28.5 22 31.5C11 28.5 8 22 8 14V10ZM19 31.5H25V40.5H19V31.5ZM13.5 40.5H30.5V47H13.5V40.5Z"/><path class="trophy-stroke" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M8 10H36M36 10V14C36 22 33 28.5 22 31.5C11 28.5 8 22 8 14V10M8 14C5.5 14 5.5 19.5 8 19.5M36 14C38.5 14 38.5 19.5 36 19.5M19 31.5V40.5M25 31.5V40.5M13.5 40.5H30.5V47H13.5Z"/></svg></span><span>Like</span></button>
+          <button class="action-button" data-action="comment"><span class="action-icon comment-icon"></span><span>Comment</span></button>
+          <button class="action-button" data-action="complain"><span class="action-icon report-icon">!</span><span>Report</span></button>
+          <button class="action-button" data-action="share"><span class="action-icon share-icon"><img src="assets/share-hand.svg" alt="" /></span><span>Share</span></button>
+        </div>
+      </article>
+    </section>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="modal" id="cameraNoticeModal">
+      <div class="modal-card">
+        <p class="eyebrow">camera notice</p>
+        <h3>Camera notice</h3>
+        <p>Camera permission is required. Excessive exposure, stolen videos, and repeated uploads may be restricted.</p>
+        <button class="primary-button wide" data-close-modal>Confirm and allow</button>
+      </div>
+    </div>
+
+    <div class="modal" id="forgotModal" data-modal-lock="true">
+      <div class="modal-card">
+        <h3>Forgot password</h3>
+        <p class="forgot-hint">Enter the name you used at signup and your phone, email, or ID.</p>
+        <label><span>Name</span><input id="forgotNameInput" placeholder="John Doe" autocomplete="name" /></label>
+        <label><span>Phone, email, or ID</span><input id="forgotContactInput" placeholder="+1 555-010-0000 or email@example.com" autocomplete="username" /></label>
+        <button type="button" class="primary-button wide" id="forgotNextButton">Next</button>
+        <button type="button" class="ghost-button wide" data-close-modal>Cancel</button>
+      </div>
+    </div>
+
+    <div class="modal" id="resetPasswordModal" data-modal-lock="true">
+      <div class="modal-card">
+        <h3>New password</h3>
+        <p class="small-copy">8+ chars, include a special character</p>
+        <label><span>New password</span><input id="resetPasswordInput" type="password" placeholder="8+ chars, include a special character" autocomplete="new-password" /></label>
+        <label><span>Confirm new password</span><input id="resetPasswordConfirmInput" type="password" placeholder="Re-enter password" autocomplete="new-password" /></label>
+        <button type="button" class="primary-button wide" id="savePasswordButton">Save password</button>
+        <button type="button" class="ghost-button wide" id="resetPasswordCancelButton">Cancel</button>
+      </div>
+    </div>
+
+    <div class="modal" id="termsModal" data-modal-lock="true">
+      <div class="modal-card terms-doc-card">
+        <h3 id="termsModalTitle">Terms and policy</h3>
+        <div class="terms-doc-body" id="termsDocBody"></div>
+        <button class="ghost-button wide" data-close-modal id="termsModalCloseButton">Close</button>
+      </div>
+    </div>
+
+    <div class="modal" id="prizeIdentityNoticeModal" data-modal-lock="true">
+      <div class="modal-card prize-identity-card">
+        <p class="eyebrow">Prize claim</p>
+        <h3>Phone verification required</h3>
+        <p class="prize-identity-copy" id="prizeIdentityCopy">
+          Phone verification is required for prize claims and payouts.
+        </p>
+        <label class="prize-identity-phone">
+          <span>Phone number</span>
+          <input id="prizeAuthPhoneInput" type="tel" inputmode="tel" placeholder="+1 555-010-0000" autocomplete="tel" />
+        </label>
+        <button type="button" class="primary-button wide" id="startPrizePhoneAuthButton">Verify phone</button>
+        <button type="button" class="ghost-button wide" data-close-modal>Later</button>
+      </div>
+    </div>
+
+    <div class="modal" id="prizeBirthModal" data-modal-lock="true">
+      <div class="modal-card prize-identity-card">
+        <p class="eyebrow">Prize claim</p>
+        <h3>Confirm date of birth</h3>
+        <p class="prize-identity-copy" id="prizeBirthCopy">
+          We verify your date of birth before prize claims.
+        </p>
+        <label class="prize-identity-phone">
+          <span>Date of birth</span>
+          <input id="prizeBirthInput" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="bday" />
+        </label>
+        <button type="button" class="primary-button wide" id="submitPrizeBirthButton">Next</button>
+        <button type="button" class="ghost-button wide" data-close-modal>Later</button>
+      </div>
+    </div>
+
+    <div class="modal" id="prizeGuardianModal" data-modal-lock="true">
+      <div class="modal-card prize-identity-card">
+        <p class="eyebrow">Prize claim</p>
+        <h3>Guardian consent</h3>
+        <p class="prize-identity-copy" id="prizeGuardianCopy">
+          Users under 18 need a parent or guardian to verify with a credit or debit card ($0–$1 authorization). We send a consent link to the guardian's phone.
+        </p>
+        <label class="prize-identity-phone">
+          <span>Guardian phone number</span>
+          <input id="guardianPhoneInput" type="tel" inputmode="tel" placeholder="+1 555-010-0000" autocomplete="tel" />
+        </label>
+        <p class="signup-field-hint guardian-dev-link-hint" id="guardianVerifyDevHint" hidden></p>
+        <p class="signup-field-hint" id="guardianVerifyStatus" hidden></p>
+        <button type="button" class="primary-button wide" id="openGuardianVerifyLinkButton" hidden>Open guardian link (demo)</button>
+        <button type="button" class="primary-button wide" id="requestGuardianConsentButton">Request guardian consent</button>
+        <button type="button" class="primary-button wide" id="continueAfterGuardianButton" hidden>Continue prize claim</button>
+        <button type="button" class="ghost-button wide" data-close-modal>Later</button>
+      </div>
+    </div>
+
+    <div class="modal" id="phoneAuthModal" data-modal-lock="true">
+      <div class="modal-card phone-auth-card">
+        <h3 id="phoneAuthTitle">Phone verification</h3>
+        <p class="small-copy" id="phoneAuthHint">We send a 6-digit code to your number.</p>
+        <p class="phone-auth-number" id="phoneAuthNumber"></p>
+        <label id="phoneAuthCodeWrap" hidden><span>Verification code</span><input id="phoneAuthCodeInput" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code" /></label>
+        <p class="signup-field-hint" id="phoneAuthDevHint" hidden></p>
+        <button type="button" class="primary-button wide" id="phoneAuthSendButton">Send code</button>
+        <button type="button" class="primary-button wide" id="phoneAuthVerifyButton" hidden>Verify</button>
+        <button type="button" class="ghost-button wide" data-close-phone-auth>Cancel</button>
+      </div>
+    </div>
+
+    <div class="modal" id="commentModal">
+      <div class="comment-post-preview" id="commentPostPreview">
+        <span>HOT REELS</span>
+        <strong>K-pop Hook Dance</strong>
+        <small>@dance.signal</small>
+      </div>
+      <div class="modal-card comment-card">
+        <div class="comment-sheet-grab" data-comment-sheet-handle role="button" tabindex="-1" aria-label="Dismiss comments">
+          <span class="comment-sheet-handle" aria-hidden="true"></span>
+        </div>
+        <h3 class="comment-sheet-title">Comment</h3>
+        <div class="comment-list" id="commentList">
+          <div class="comment-item" data-comment-id="c-0" data-comment-author="@showup.me">
+            <p class="comment-text"><button type="button" class="profile-link" data-profile-name="@showup.me">@showup.me</button> Sample comment</p>
+            <button type="button" class="comment-more-btn" data-comment-menu aria-label="Comment options">⋯</button>
+          </div>
+          <div class="comment-item" data-comment-id="c-1" data-comment-author="@move.ground">
+            <p class="comment-text"><button type="button" class="profile-link" data-profile-name="@move.ground">@move.ground</button> Strong form today</p>
+            <button type="button" class="comment-more-btn" data-comment-menu aria-label="Comment options">⋯</button>
+          </div>
+          <div class="comment-item" data-comment-id="c-2" data-comment-author="@show.runner">
+            <p class="comment-text"><button type="button" class="profile-link" data-profile-name="@show.runner">@show.runner</button> Looks like TOP10</p>
+            <button type="button" class="comment-more-btn" data-comment-menu aria-label="Comment options">⋯</button>
+          </div>
+        </div>
+        <label class="comment-compose"><span>Comment</span><input id="commentInput" placeholder="Add a comment and press Enter" /></label>
+      </div>
+    </div>
+
+    <div class="modal comment-overlay-modal" id="commentMenuModal">
+      <div class="modal-card menu-card comment-menu-card" id="commentMenuCard">
+        <p class="comment-menu-target" id="commentMenuTarget">Comment options</p>
+        <div id="commentMenuActions" class="comment-menu-actions"></div>
+        <button type="button" class="ghost-button wide" data-close-comment-menu>Cancel</button>
+      </div>
+    </div>
+
+    <div class="modal comment-overlay-modal" id="commentReportModal">
+      <div class="modal-card comment-report-card">
+        <h3>Comment Report</h3>
+        <p class="comment-report-preview" id="commentReportPreview"></p>
+        <div class="comment-report-reasons" id="commentReportReasons">
+          <button type="button" data-report-reason="abuse">욕설·비방</button>
+          <button type="button" data-report-reason="spam">스팸·광고</button>
+          <button type="button" data-report-reason="hate">혐오·차별</button>
+          <button type="button" data-report-reason="privacy">개인정보 노출</button>
+          <button type="button" data-report-reason="off_topic">챌린지·영상과 무관</button>
+          <button type="button" data-report-reason="other">기타</button>
+        </div>
+        <p class="comment-report-note">Report해도 Comment은 그대로 보입니다. 해당 사용자의 Comment을 없애려면 메뉴에서 차단하세요.</p>
+        <button type="button" class="primary-button wide" id="commentReportSubmit" disabled>Report 접수</button>
+        <button type="button" class="ghost-button wide" data-close-comment-report>Cancel</button>
+      </div>
+    </div>
+
+    <div class="modal share-sheet-modal" id="shareSheetModal" data-modal-lock="true">
+      <div class="share-sheet" role="dialog" aria-labelledby="shareSheetTitle">
+        <div class="share-sheet-handle" aria-hidden="true"></div>
+        <h3 id="shareSheetTitle">Share</h3>
+        <p class="share-sheet-preview" id="shareSheetPreview"></p>
+        <div class="share-sheet-grid" id="shareSheetGrid"></div>
+        <button type="button" class="share-sheet-cancel" data-close-share-sheet>Cancel</button>
+      </div>
+    </div>
+
+    <div class="modal music-modal" id="musicModal">
+      <section class="music-sheet">
+        <button class="music-close" id="musicCloseButton" aria-label="Close">×</button>
+        <div class="music-grip"></div>
+        <label class="music-search"><span>⌕</span><input id="musicSearchInput" type="search" placeholder="음악 Search" autocomplete="off" /></label>
+        <div class="music-tabs">
+          <button class="is-active" data-music-tab="trending">인기</button>
+          <button data-music-tab="saved">저장됨</button>
+        </div>
+        <div class="music-list" id="musicList"></div>
+        <p class="music-empty" id="musicEmpty" hidden>저장한 음악이 없습니다.</p>
+      </section>
+    </div>
+
+    <div class="modal profile-modal" id="profileModal">
+      <section class="profile-screen">
+        <header class="profile-top">
+          <button type="button" class="profile-back-btn" id="profileBackButton" aria-label="Back">‹</button>
+          <strong id="profileUserId">igeonhyi9849</strong>
+          <div>
+            <button type="button" class="profile-bell" aria-label="Notifications">
+              <span class="bell-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M17 20.5c0-5.2 3.2-9.1 8-9.1s8 3.9 8 9.1v6.2c0 2.4 1.5 4.4 3.5 5.4H13.5c2-1 3.5-3 3.5-5.4v-6.2Z"/>
+                  <path d="M21 36c.9 1.4 2 2.1 4 2.1s3.1-.7 4-2.1"/>
+                  <path d="M25 8.7v3"/>
+                </svg>
+              </span>
+            </button>
+            <button type="button" id="profileMoreButton" aria-label="More">···</button>
+            <button type="button" class="settings-button gear-button profile-settings-button" id="settingsButton" title="Settings" aria-label="Settings"></button>
+          </div>
+        </header>
+        <div class="profile-stack">
+          <section class="profile-card profile-card--identity">
+            <span class="profile-card-label">Profile</span>
+            <div class="profile-card-row">
+              <button type="button" class="profile-avatar" data-profile-photo-trigger aria-label="Profile 사진 보기"></button>
+              <div class="profile-card-main">
+                <strong id="profileName">User profile</strong>
+                <p class="profile-bio" id="profileBio"></p>
+              </div>
+            </div>
+          </section>
+          <section class="profile-card profile-card--activity">
+            <span class="profile-card-label">Activity</span>
+            <div class="profile-stats">
+              <span class="profile-stat profile-stat--posts"><b>3</b>Posts</span>
+              <span class="profile-stat profile-stat--interest" data-open-interest-list role="button" tabindex="0"><b>5</b>Interest</span>
+            </div>
+          </section>
+          <section class="profile-card profile-card--week">
+            <span class="profile-card-label">This week</span>
+            <p class="profile-week-line" id="profileWeekLine"></p>
+            <p class="profile-week-meta" id="profileWeekMeta" hidden></p>
+            <div class="profile-rank-list" id="profileRankList" hidden></div>
+          </section>
+          <div class="profile-actions-row" hidden></div>
+        </div>
+        <section class="profile-posts-panel" id="profilePostsPanel">
+          <p class="profile-posts-label">Posts</p>
+          <div class="profile-grid" id="profileGrid"></div>
+        </section>
+      </section>
+    </div>
+
+    <div class="modal" id="profileMenuModal">
+      <div class="modal-card menu-card">
+        <button type="button" data-profile-menu="photo">Profile 사진 보기</button>
+        <button type="button" data-profile-menu="copy">Profile URL 복사</button>
+        <button type="button" data-profile-menu="share">Profile Share</button>
+        <button type="button" data-profile-menu="qr">QR code</button>
+        <button type="button" class="ghost-button wide" data-close-profile-menu>Close</button>
+      </div>
+    </div>
+
+    <div class="modal qr-modal" id="qrModal">
+      <section class="qr-screen">
+        <header>
+          <button type="button" class="qr-back" data-close-modal aria-label="Back">‹</button>
+          <strong>SHOW UP</strong>
+          <span aria-hidden="true"></span>
+        </header>
+        <div class="qr-card">
+          <div class="qr-generated" aria-label="Profile QR code">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <b>@Y_JXXKK</b>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal profile-photo-modal" id="profilePhotoModal">
+      <div class="profile-photo-shell">
+        <div class="profile-photo-preview" role="img" aria-label="Profile 사진"></div>
+        <input type="file" id="profilePhotoFileInput" accept="image/jpeg,image/png,image/webp" hidden />
+        <button type="button" class="primary-button wide" id="profilePhotoChangeButton" hidden>Change photo</button>
+      </div>
+    </div>
+
+    <div class="modal interest-list-modal" id="interestListModal">
+      <section class="interest-list-screen">
+        <header class="interest-list-top">
+          <button type="button" class="interest-list-back" data-close-modal aria-label="Back">‹</button>
+          <strong id="interestListTitle">Interest</strong>
+          <span aria-hidden="true"></span>
+        </header>
+        <p class="interest-list-sub" id="interestListSub">Interest 추가한 참가자입니다</p>
+        <label class="interest-list-search" id="interestListSearchWrap">
+          <span aria-hidden="true">⌕</span>
+          <input type="search" id="interestListSearch" placeholder="Search" autocomplete="off" />
+        </label>
+        <div class="interest-list" id="interestList"></div>
+        <p class="interest-list-empty" id="interestListEmpty" hidden>Interest 목록이 비어 있습니다</p>
+      </section>
+    </div>
+
+    <div class="modal" id="pickModal">
+      <div class="modal-card">
+        <h3 id="pickModalTitle">Select TOP3</h3>
+        <div class="modal-list" id="pickModalList"></div>
+        <button class="ghost-button wide" data-close-modal>Close</button>
+      </div>
+    </div>
+
+    <div class="modal" id="adModal">
+      <div class="modal-card">
+        <p class="eyebrow">AD</p>
+        <h3 id="adTitle">sponsored break</h3>
+        <p id="adText">Continue after the ad.</p>
+        <button class="primary-button wide" data-close-modal>Close</button>
+      </div>
+    </div>
+
+    <div class="modal" id="notificationModal">
+      <div class="modal-card notification-card">
+        <p class="eyebrow">Notifications</p>
+        <h3>Notifications</h3>
+        <div class="notification-list">
+          <article class="notification-item is-prize" hidden>
+            <div>
+              <span>Prize notice</span>
+              <strong>Congratulations on 1st place</strong>
+              <p>Prize claim is open. Winners only.</p>
+            </div>
+            <button type="button" class="primary-button" id="openPrizeClaimButton">Claim prize</button>
+          </article>
+          <article class="notification-item is-unread" data-vote-alert>
+            <div>
+              <span>Vote schedule</span>
+              <strong>TOP3 final vote starts soon</strong>
+              <p>Final candidates are available after Saturday 6 PM ET.</p>
+            </div>
+          </article>
+          <article class="notification-item">
+            <div>
+              <span>Review status</span>
+              <strong>AI review pending</strong>
+              <p>Uploaded videos are checked for theft, exposure, and repeat uploads.</p>
+            </div>
+          </article>
+        </div>
+        <button class="ghost-button wide" data-close-modal>Close</button>
+      </div>
+    </div>
+
+    <div class="modal" id="prizeClaimModal" data-modal-lock="true">
+      <div class="modal-card notification-card">
+        <button class="modal-x" type="button" data-close-modal aria-label="Close">×</button>
+        <p class="eyebrow">Prize claim</p>
+        <h3>Submit prize claim</h3>
+        <section class="claim-payout-summary" id="claimPayoutSummary" hidden></section>
+        <p>Prizes are paid after identity checks and fraud review. ACH transfer within 7 days of announcement. Taxes may apply under U.S. law.</p>
+        <p class="small-copy" id="claimW9Note">A completed IRS Form W-9 is required before payout. We will contact you after your claim is submitted.</p>
+        <section class="claim-tax-guide" id="claimTaxGuide" hidden></section>
+        <div class="notice-flow">
+          <article><strong>Enter payout info</strong><span>Enter name, date of birth, contact, routing number, personal checking account, and account holder (must match your legal name).</span></article>
+          <article><strong>Operator review</strong><span>We review theft, exposure, fraud, and multi-account abuse. Review takes up to 3 days.</span></article>
+          <article><strong>ACH transfer</strong><span>Approved prizes are sent via ACH within 7 days.</span></article>
+        </div>
+        <div class="claim-form">
+          <label><span>Name</span><input id="claimNameInput" placeholder="John Doe" autocomplete="name" /></label>
+          <label><span>Date of birth</span><input id="claimBirthInput" placeholder="MM/DD/YYYY" inputmode="numeric" /></label>
+          <label><span>Contact</span><input id="claimContactInput" placeholder="+1 555-010-0000" inputmode="tel" /></label>
+          <label><span>Routing number (ABA)</span><input id="claimBankInput" placeholder="021000021" inputmode="numeric" /></label>
+          <label><span>Checking account (personal)</span><input id="claimAccountInput" placeholder="1234567890" inputmode="numeric" /></label>
+          <label><span>Account holder</span><input id="claimHolderInput" placeholder="John Doe" /></label>
+        </div>
+        <p class="small-copy claim-form-hint">Account holder must exactly match Name. Use MM/DD/YYYY for date of birth.</p>
+        <p class="small-copy">Personal checking only. Savings and business accounts are not accepted. Paid within 7 days after fraud review.</p>
+        <button type="button" class="primary-button wide" id="submitPrizeClaimButton">Submit claim</button>
+      </div>
+    </div>
+
+    <script src="i18n.js?v=proto-v147"></script>
+    <script src="script.js?v=proto-v147"></script>
+  </body>
+</html>
