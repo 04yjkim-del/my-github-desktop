@@ -420,33 +420,3 @@ class BottomNav extends StatelessWidget {
     );
   }
 }
-
-class WordBackground extends StatelessWidget {
-  const WordBackground({super.key, required this.words});
-
-  final List<String> words;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 18,
-      runSpacing: 18,
-      children: words.map((word) => Text(
-        word,
-        style: TextStyle(color: Colors.white.withOpacity(0.16), fontSize: 46, fontWeight: FontWeight.w900),
-      )).toList(),
-    );
-  }
-}
-
-BoxDecoration darkGradient(double radius) {
-  return BoxDecoration(
-    borderRadius: BorderRadius.circular(radius),
-    gradient: const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [Color(0xff07080c), Color(0xff181b23)],
-    ),
-    boxShadow: const [BoxShadow(color: Color(0x22000000), blurRadius: 28, offset: Offset(0, 16))],
-  );
-}
