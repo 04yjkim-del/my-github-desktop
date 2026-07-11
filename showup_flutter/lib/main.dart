@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'auth_screens.dart';
 import 'bet_screen.dart';
+import 'camera_screen.dart';
 import 'home_screen.dart';
 import 'rank_screen.dart';
 import 'vote_screen.dart';
@@ -134,7 +135,10 @@ class _ShowUpShellState extends State<ShowUpShell> {
                   onNext: nextFeed,
                   onAction: handleHomeAction,
                 ),
-                CameraScreen(onUpload: handleUpload, onGallery: () => toast('갤러리 선택')),
+                CameraScreen(
+                  onUpload: handleUpload,
+                  onAction: handleCameraAction,
+                ),
                 VoteScreen(
                   candidates: challenges.map(toHomeChallenge).toList(),
                   ranking: rankedChallenges(),
@@ -235,6 +239,41 @@ class _ShowUpShellState extends State<ShowUpShell> {
         toast('설정 화면은 다음 단계에서 연결됩니다');
       case 'winners':
         toast('예측 당첨자는 일요일 6PM 이후 발표됩니다');
+      default:
+        break;
+    }
+  }
+
+  void handleCameraAction(String action) {
+    switch (action) {
+      case 'back':
+        changeTab(MainTab.home);
+      case 'record-start':
+        toast('녹화 시작');
+      case 'record-stop':
+        toast('녹화 종료 · 미리보기 준비됨');
+      case 'music':
+        toast('음원을 선택했습니다');
+      case 'flip':
+        toast('카메라를 전환했습니다');
+      case 'flip-blocked':
+        toast('녹화 중에는 카메라를 전환할 수 없습니다');
+      case 'gallery':
+        toast('갤러리에서 영상을 불러왔습니다 (프로토타입)');
+      case 'gallery-blocked':
+        toast('녹화 중에는 갤러리를 열 수 없습니다');
+      case 'save':
+        toast('임시 저장했습니다');
+      case 'save-empty':
+        toast('먼저 촬영하거나 갤러리에서 영상을 선택하세요');
+      case 'share':
+        toast('공유 링크를 준비했습니다 (프로토타입)');
+      case 'share-empty':
+        toast('공유할 영상이 없습니다');
+      case 'drop-empty':
+        toast('DROP 할 영상이 없습니다');
+      case 'drop-blocked':
+        toast('녹화를 먼저 종료해 주세요');
       default:
         break;
     }
@@ -360,42 +399,6 @@ class _ShowUpShellState extends State<ShowUpShell> {
 
 }
 
-class CameraScreen extends StatelessWidget {
-  const CameraScreen({super.key, required this.onUpload, required this.onGallery});
-
-  final VoidCallback onUpload;
-  final VoidCallback onGallery;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 104),
-      child: Container(
-        padding: const EdgeInsets.all(22),
-        decoration: darkGradient(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Expanded(child: WordBackground(words: ['UPLOAD', 'FILTER', 'MUSIC', '1 MIN', 'NO COPY'])),
-            const Text('촬영 또는 갤러리 업로드', style: TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.w900)),
-            const Text('영상 길이 1분 · 미리보기/재촬영 가능 · AI 검수 진행', style: TextStyle(color: Colors.white70)),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                IconButton.filled(onPressed: () {}, iconSize: 38, icon: const Icon(Icons.fiber_manual_record)),
-                const SizedBox(width: 10),
-                FilledButton(onPressed: onGallery, child: const Text('갤러리')),
-                const SizedBox(width: 10),
-                FilledButton(onPressed: onUpload, child: const Text('업로드')),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class BottomNav extends StatelessWidget {
   const BottomNav({super.key, required this.current, required this.onTap});
 
@@ -409,7 +412,7 @@ class BottomNav extends StatelessWidget {
       onDestinationSelected: (index) => onTap(MainTab.values[index]),
       destinations: const [
         NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-        NavigationDestination(icon: Icon(Icons.add_circle_outline), selectedIcon: Icon(Icons.add_circle), label: 'Camera'),
+        NavigationDestination(icon: Icon(Icons.add_circle_outline), selectedIcon: Icon(Icons.add_circle), label: 'DROP'),
         NavigationDestination(icon: Icon(Icons.how_to_vote_outlined), selectedIcon: Icon(Icons.how_to_vote), label: 'Vote'),
         NavigationDestination(icon: Icon(Icons.emoji_events_outlined), selectedIcon: Icon(Icons.emoji_events), label: 'Bet'),
         NavigationDestination(icon: Icon(Icons.leaderboard_outlined), selectedIcon: Icon(Icons.leaderboard), label: 'Rank'),
