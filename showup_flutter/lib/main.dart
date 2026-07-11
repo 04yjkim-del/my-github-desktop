@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'auth_screens.dart';
+
 void main() {
   runApp(const ShowUpApp());
 }
@@ -170,21 +172,49 @@ class _ShowUpShellState extends State<ShowUpShell> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('비밀번호 찾기'),
+        backgroundColor: const Color(0xff12151c),
+        title: const Text('Forgot password?', style: TextStyle(color: Colors.white)),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(decoration: InputDecoration(labelText: '이름')),
-            TextField(decoration: InputDecoration(labelText: '전화번호 또는 이메일')),
+            Text(
+              '이름과 전화번호(또는 이메일)로 본인 확인 후 비밀번호를 재설정합니다.',
+              style: TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+            SizedBox(height: 12),
+            TextField(
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Name',
+                labelStyle: TextStyle(color: Colors.white70),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+              ),
+            ),
+            TextField(
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Phone or email',
+                labelStyle: TextStyle(color: Colors.white70),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+              ),
+            ),
           ],
         ),
         actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xffd7ff38),
+              foregroundColor: Colors.black,
+            ),
             onPressed: () {
               Navigator.pop(context);
               openResetPasswordDialog();
             },
-            child: const Text('다음'),
+            child: const Text('Next'),
           ),
         ],
       ),
@@ -195,16 +225,43 @@ class _ShowUpShellState extends State<ShowUpShell> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('새 비밀번호'),
+        backgroundColor: const Color(0xff12151c),
+        title: const Text('New password', style: TextStyle(color: Colors.white)),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(obscureText: true, decoration: InputDecoration(labelText: '새 비밀번호')),
-            TextField(obscureText: true, decoration: InputDecoration(labelText: '비밀번호 확인')),
+            TextField(
+              obscureText: true,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'New password',
+                labelStyle: TextStyle(color: Colors.white70),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+              ),
+            ),
+            TextField(
+              obscureText: true,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Confirm password',
+                labelStyle: TextStyle(color: Colors.white70),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+              ),
+            ),
           ],
         ),
         actions: [
-          FilledButton(onPressed: () => Navigator.pop(context), child: const Text('변경 완료')),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xffd7ff38),
+              foregroundColor: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              toast('비밀번호가 변경되었습니다');
+            },
+            child: const Text('Save'),
+          ),
         ],
       ),
     );
@@ -248,178 +305,6 @@ class _ShowUpShellState extends State<ShowUpShell> {
 
   void toggleRanking() {
     setState(() => rankingExpanded = !rankingExpanded);
-  }
-}
-
-class AuthGate extends StatelessWidget {
-  const AuthGate({
-    super.key,
-    required this.introVisible,
-    required this.signupMode,
-    required this.onStart,
-    required this.onToggle,
-    required this.onLogin,
-    required this.onSignup,
-    required this.onForgot,
-  });
-
-  final bool introVisible;
-  final bool signupMode;
-  final VoidCallback onStart;
-  final ValueChanged<bool> onToggle;
-  final VoidCallback onLogin;
-  final VoidCallback onSignup;
-  final VoidCallback onForgot;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xff050608),
-      child: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(18),
-            child: introVisible ? IntroCard(onStart: onStart) : AuthCard(
-              signupMode: signupMode,
-              onToggle: onToggle,
-              onLogin: onLogin,
-              onSignup: onSignup,
-              onForgot: onForgot,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class IntroCard extends StatelessWidget {
-  const IntroCard({super.key, required this.onStart});
-
-  final VoidCallback onStart;
-
-  @override
-  Widget build(BuildContext context) {
-    return DarkCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const BrandRow(),
-          const SizedBox(height: 92),
-          const Wrap(
-            spacing: 12,
-            runSpacing: 8,
-            children: [
-              WordChip('TREND'),
-              WordChip('VIBE'),
-              WordChip('MOVE'),
-              WordChip('SHOW UP'),
-            ],
-          ),
-          const SizedBox(height: 22),
-          const Text(
-            '저희와 함께 트랜드를 즐겨보세요',
-            style: TextStyle(color: Colors.white, fontSize: 42, height: 1, fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            '챌린지를 보고, 참여하고, 투표와 예측으로 보상까지.',
-            style: TextStyle(color: Colors.white70),
-          ),
-          const SizedBox(height: 24),
-          FilledButton(onPressed: onStart, child: const Text('시작하기')),
-        ],
-      ),
-    );
-  }
-}
-
-class AuthCard extends StatelessWidget {
-  const AuthCard({
-    super.key,
-    required this.signupMode,
-    required this.onToggle,
-    required this.onLogin,
-    required this.onSignup,
-    required this.onForgot,
-  });
-
-  final bool signupMode;
-  final ValueChanged<bool> onToggle;
-  final VoidCallback onLogin;
-  final VoidCallback onSignup;
-  final VoidCallback onForgot;
-
-  @override
-  Widget build(BuildContext context) {
-    return DarkCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const BrandRow(),
-          const SizedBox(height: 18),
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: false, label: Text('로그인')),
-              ButtonSegment(value: true, label: Text('회원가입')),
-            ],
-            selected: {signupMode},
-            onSelectionChanged: (set) => onToggle(set.first),
-          ),
-          const SizedBox(height: 18),
-          if (signupMode) SignupForm(onSubmit: onSignup) else LoginForm(onLogin: onLogin, onForgot: onForgot),
-        ],
-      ),
-    );
-  }
-}
-
-class LoginForm extends StatelessWidget {
-  const LoginForm({super.key, required this.onLogin, required this.onForgot});
-
-  final VoidCallback onLogin;
-  final VoidCallback onForgot;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const TextField(decoration: InputDecoration(labelText: '아이디'), style: TextStyle(color: Colors.white)),
-        const TextField(obscureText: true, decoration: InputDecoration(labelText: '비밀번호'), style: TextStyle(color: Colors.white)),
-        const SizedBox(height: 10),
-        const Wrap(spacing: 8, children: [Chip(label: Text('전화번호')), Chip(label: Text('이메일')), Chip(label: Text('소셜 로그인'))]),
-        const SizedBox(height: 14),
-        FilledButton(onPressed: onLogin, child: const Text('로그인')),
-        TextButton(onPressed: onForgot, child: const Text('비밀번호를 잊으셨습니까?')),
-      ],
-    );
-  }
-}
-
-class SignupForm extends StatelessWidget {
-  const SignupForm({super.key, required this.onSubmit});
-
-  final VoidCallback onSubmit;
-
-  @override
-  Widget build(BuildContext context) {
-    const fields = ['전화번호 또는 이메일', '비밀번호', '비밀번호 확인', '생년월일', '이름', '사용자이름', '전화번호 인증 코드'];
-    return Column(
-      children: [
-        const Align(alignment: Alignment.centerLeft, child: Text('만 7세 이상 가입 가능', style: TextStyle(color: Colors.white70))),
-        const SizedBox(height: 8),
-        ...fields.map((field) => Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: TextField(
-            obscureText: field.contains('비밀번호'),
-            decoration: InputDecoration(labelText: field, helperText: field.contains('코드') ? '6자리 · 제한시간 3분' : null),
-            style: const TextStyle(color: Colors.white),
-          ),
-        )),
-        CheckboxListTile(value: true, onChanged: (_) {}, title: const Text('이용 약관 및 정책 동의 [필수]', style: TextStyle(color: Colors.white))),
-        FilledButton(onPressed: onSubmit, child: const Text('가입 완료')),
-      ],
-    );
   }
 }
 
@@ -714,48 +599,6 @@ class RankingPreview extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class DarkCard extends StatelessWidget {
-  const DarkCard({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 520,
-      padding: const EdgeInsets.all(24),
-      decoration: darkGradient(24),
-      child: child,
-    );
-  }
-}
-
-class BrandRow extends StatelessWidget {
-  const BrandRow({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        CircleAvatar(backgroundColor: Colors.white, foregroundColor: Colors.black, child: Text('su', style: TextStyle(fontWeight: FontWeight.w900))),
-        SizedBox(width: 10),
-        Text('show up', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18)),
-      ],
-    );
-  }
-}
-
-class WordChip extends StatelessWidget {
-  const WordChip(this.text, {super.key});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(text, style: const TextStyle(color: Color(0xffd7ff38), fontSize: 32, fontWeight: FontWeight.w900));
   }
 }
 
