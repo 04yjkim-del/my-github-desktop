@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'auth_screens.dart';
 import 'bet_screen.dart';
 import 'home_screen.dart';
+import 'rank_screen.dart';
 import 'vote_screen.dart';
 
 void main() {
@@ -79,7 +80,6 @@ class _ShowUpShellState extends State<ShowUpShell> {
   bool introVisible = true;
   bool signupMode = false;
   bool cameraNoticeSeen = false;
-  bool rankingExpanded = false;
   int feedIndex = 0;
   MainTab tab = MainTab.home;
 
@@ -148,7 +148,10 @@ class _ShowUpShellState extends State<ShowUpShell> {
                   ),
                   onAction: handleBetAction,
                 ),
-                RankScreen(expanded: rankingExpanded, onToggle: toggleRanking),
+                RankScreen(
+                  entries: challenges.map(toHomeChallenge).toList(),
+                  onAction: handleRankAction,
+                ),
               ],
             ),
           ),
@@ -221,6 +224,17 @@ class _ShowUpShellState extends State<ShowUpShell> {
         toast('이미 확정된 예측은 수정할 수 없습니다');
       case 'bet-incomplete':
         toast('1~3등을 모두 선택해 주세요');
+      default:
+        break;
+    }
+  }
+
+  void handleRankAction(String action) {
+    switch (action) {
+      case 'settings':
+        toast('설정 화면은 다음 단계에서 연결됩니다');
+      case 'winners':
+        toast('예측 당첨자는 일요일 6PM 이후 발표됩니다');
       default:
         break;
     }
@@ -344,9 +358,6 @@ class _ShowUpShellState extends State<ShowUpShell> {
     );
   }
 
-  void toggleRanking() {
-    setState(() => rankingExpanded = !rankingExpanded);
-  }
 }
 
 class CameraScreen extends StatelessWidget {
@@ -381,44 +392,6 @@ class CameraScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class RankScreen extends StatelessWidget {
-  const RankScreen({super.key, required this.expanded, required this.onToggle});
-
-  final bool expanded;
-  final VoidCallback onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = List<Challenge>.generate(50, (index) => challenges[index % challenges.length])
-      ..sort((a, b) => b.score.compareTo(a.score));
-    final visible = rows.take(expanded ? 50 : 10).toList();
-
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 104),
-      children: [
-        const Text('실시간 랭킹', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
-        const Text('참가자 랭킹만 노출합니다. 내부 반영표는 관리자만 확인합니다.'),
-        const SizedBox(height: 12),
-        for (var i = 0; i < visible.length; i++)
-          Card(
-            child: ListTile(
-              leading: CircleAvatar(child: Text('${i + 1}')),
-              title: Text(visible[i].title),
-              trailing: Text('${visible[i].score}점'),
-            ),
-          ),
-        OutlinedButton(onPressed: onToggle, child: Text(expanded ? '접기' : '더보기')),
-        const Card(
-          child: ListTile(
-            title: Text('심사위원 당첨자 발표'),
-            subtitle: Text('예측 성공자 중 랜덤 추첨 5명 · 일요일 6PM 이후 공개'),
-          ),
-        ),
-      ],
     );
   }
 }
