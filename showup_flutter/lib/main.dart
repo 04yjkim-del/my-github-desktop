@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'auth_screens.dart';
 import 'home_screen.dart';
+import 'vote_screen.dart';
 
 void main() {
   runApp(const ShowUpApp());
@@ -135,7 +136,12 @@ class _ShowUpShellState extends State<ShowUpShell> {
                   onAction: handleHomeAction,
                 ),
                 CameraScreen(onUpload: handleUpload, onGallery: () => toast('갤러리 선택')),
-                VoteScreen(onVote: () => toast('투표를 해주셔서 감사합니다')),
+                VoteScreen(
+                  candidates: challenges.map(toHomeChallenge).toList(),
+                  ranking: rankedChallenges(),
+                  onVote: (candidate) => toast('${candidate.title}에 투표했습니다'),
+                  onAction: handleVoteAction,
+                ),
                 BetScreen(
                   picks: picks,
                   editsLeft: predictionEditsLeft,
@@ -191,6 +197,21 @@ class _ShowUpShellState extends State<ShowUpShell> {
         if (action.startsWith('search:')) {
           toast('프로필 검색: ${action.substring(7)}');
         }
+    }
+  }
+
+  void handleVoteAction(String action) {
+    switch (action) {
+      case 'notify':
+        toast('새 알림이 없습니다');
+      case 'vote-closed':
+        toast('투표가 마감되었습니다');
+      case 'vote-already':
+        toast('이미 다른 후보에 투표했습니다. 같은 버튼을 다시 누르면 취소됩니다.');
+      case 'vote-cancel':
+        toast('투표를 취소했습니다');
+      default:
+        break;
     }
   }
 
@@ -385,32 +406,6 @@ class CameraScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class VoteScreen extends StatelessWidget {
-  const VoteScreen({super.key, required this.onVote});
-
-  final VoidCallback onVote;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 104),
-      children: [
-        const Text('투표 일정', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
-        const Text('TOP5 기준은 투표수만 반영합니다. 좋아요와 댓글은 바이럴 지표입니다.'),
-        const SizedBox(height: 12),
-        for (final c in challenges)
-          Card(
-            child: ListTile(
-              title: Text(c.title, style: const TextStyle(fontWeight: FontWeight.w900)),
-              subtitle: Text('${c.handle} · ${c.votes}표'),
-              trailing: FilledButton(onPressed: onVote, child: const Text('투표')),
-            ),
-          ),
-      ],
     );
   }
 }
