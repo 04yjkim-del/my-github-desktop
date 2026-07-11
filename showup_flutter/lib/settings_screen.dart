@@ -21,6 +21,7 @@ class SettingsScreen extends StatelessWidget {
     ('blocked', 'Blocked accounts', Icons.block_outlined),
     ('help', 'Help center', Icons.help_outline_rounded),
     ('terms', 'Terms and policies', Icons.article_outlined),
+    ('prize-claim', 'Prize claim (demo)', Icons.card_giftcard_outlined),
     ('logout', 'Log out', Icons.logout_rounded),
     ('withdraw', 'Delete account', Icons.delete_outline),
   ];

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'auth_screens.dart';
 import 'bet_screen.dart';
 import 'camera_screen.dart';
+import 'extra_modals.dart';
 import 'home_screen.dart';
 import 'overlays.dart';
 import 'profile_screen.dart';
@@ -111,7 +112,9 @@ class _ShowUpShellState extends State<ShowUpShell> {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (context) => const NotificationsSheet(),
+      builder: (context) => NotificationsSheet(
+        onClaimPrize: () => ExtraModals.openPrizeClaimFlow(context),
+      ),
     );
   }
 
@@ -120,8 +123,15 @@ class _ShowUpShellState extends State<ShowUpShell> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (context) => CommentsSheet(challenge: challenge),
+      builder: (context) => CommentsSheet(
+        challenge: challenge,
+        onCommentMenu: (author) => ExtraModals.showCommentMenu(context, author),
+      ),
     );
+  }
+
+  void openShare(String preview) {
+    ExtraModals.showShareSheet(context, preview: preview);
   }
 
   void openSettings() {
@@ -245,7 +255,7 @@ class _ShowUpShellState extends State<ShowUpShell> {
       case 'report':
         toast('신고가 접수되었습니다 (프로토타입)');
       case 'share':
-        toast('공유 링크를 복사했습니다 (프로토타입)');
+        openShare('${current.title} · ${current.handle}');
       case 'notify':
         openNotifications();
       case 'search-empty':
@@ -267,7 +277,7 @@ class _ShowUpShellState extends State<ShowUpShell> {
       case 'report':
         toast('신고가 접수되었습니다 (프로토타입)');
       case 'share':
-        toast('공유 링크를 복사했습니다 (프로토타입)');
+        openShare('${current.title} · ${current.handle}');
       default:
         break;
     }
@@ -278,18 +288,23 @@ class _ShowUpShellState extends State<ShowUpShell> {
       case 'notify':
         openNotifications();
       case 'interest':
-        toast('Interest 목록 (프로토타입)');
+        ExtraModals.openInterestList(context);
       case 'photo':
-        toast('프로필 사진 보기 (프로토타입)');
+        ExtraModals.showProfilePhoto(context);
       case 'copy-url':
         toast('프로필 URL 복사됨');
       case 'share-profile':
-        toast('프로필 공유 (프로토타입)');
+        openShare('@showup_name · User profile');
       case 'qr':
-        toast('QR 코드 (프로토타입)');
+        ExtraModals.openQrScreen(context);
+      case 'post-menu':
+        final title = action.contains(':') ? action.substring(action.indexOf(':') + 1) : 'Post';
+        ExtraModals.showProfilePostMenu(context, title);
       default:
         if (action.startsWith('post:')) {
           openReels();
+        } else if (action.startsWith('post-menu:')) {
+          ExtraModals.showProfilePostMenu(context, action.substring(10));
         }
     }
   }
@@ -306,6 +321,10 @@ class _ShowUpShellState extends State<ShowUpShell> {
         toast('로그아웃되었습니다');
       case 'withdraw':
         toast('탈퇴 요청은 서버 연결 후 처리됩니다');
+      case 'terms':
+        ExtraModals.showTerms(context);
+      case 'prize-claim':
+        ExtraModals.openPrizeClaimFlow(context);
       default:
         toast('${action.replaceAll('-', ' ')} (프로토타입)');
     }
@@ -384,21 +403,9 @@ class _ShowUpShellState extends State<ShowUpShell> {
   }
 
   void handleUpload() {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('upload ad'),
-        content: const Text('광고 시청 후 업로드 완료 처리와 AI 검수가 시작됩니다.'),
-        actions: [
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              toast('AI 검수 중');
-            },
-            child: const Text('광고 완료'),
-          ),
-        ],
-      ),
+    ExtraModals.showAdBreak(
+      context,
+      onComplete: () => toast('AI 검수 중'),
     );
   }
 

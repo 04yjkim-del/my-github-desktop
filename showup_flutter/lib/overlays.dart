@@ -99,9 +99,14 @@ class ReelsViewer extends StatelessWidget {
 }
 
 class CommentsSheet extends StatelessWidget {
-  const CommentsSheet({super.key, required this.challenge});
+  const CommentsSheet({
+    super.key,
+    required this.challenge,
+    required this.onCommentMenu,
+  });
 
   final HomeChallenge challenge;
+  final ValueChanged<String> onCommentMenu;
 
   static const _samples = [
     ('@showup.me', 'Sample comment'),
@@ -138,7 +143,10 @@ class CommentsSheet extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 title: Text(sample.$1, style: const TextStyle(fontWeight: FontWeight.w800)),
                 subtitle: Text(sample.$2),
-                trailing: const Icon(Icons.more_horiz_rounded),
+                trailing: IconButton(
+                  icon: const Icon(Icons.more_horiz_rounded),
+                  onPressed: () => onCommentMenu(sample.$1),
+                ),
               ),
             const SizedBox(height: 8),
             TextField(
@@ -160,7 +168,9 @@ class CommentsSheet extends StatelessWidget {
 }
 
 class NotificationsSheet extends StatelessWidget {
-  const NotificationsSheet({super.key});
+  const NotificationsSheet({super.key, this.onClaimPrize});
+
+  final VoidCallback? onClaimPrize;
 
   static const _items = [
     ('Vote opens Friday 6PM', 'Weekly challenge reminder'),
@@ -178,6 +188,34 @@ class NotificationsSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Notifications', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xfff7ffe0),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: _lime.withOpacity(0.6)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Prize notice', style: TextStyle(fontWeight: FontWeight.w800, color: _lime)),
+                  const SizedBox(height: 4),
+                  const Text('Congratulations on 1st place', style: TextStyle(fontWeight: FontWeight.w900)),
+                  const Text('Prize claim is open. Winners only.', style: TextStyle(color: Colors.black54)),
+                  const SizedBox(height: 10),
+                  FilledButton(
+                    style: FilledButton.styleFrom(backgroundColor: _lime, foregroundColor: Colors.black),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      onClaimPrize?.call();
+                    },
+                    child: const Text('Claim prize'),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 12),
             for (final item in _items)
               ListTile(

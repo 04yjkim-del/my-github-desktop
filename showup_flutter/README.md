@@ -47,4 +47,5 @@ lib/
   profile_screen.dart 프로필
   settings_screen.dart 설정
   overlays.dart       릴스/댓글/알림
+  extra_modals.dart   공유/QR/상금/보호자/약관 등
 ```

@@ -57,10 +57,14 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 34,
-                    backgroundColor: _lime.withOpacity(0.25),
-                    child: const Text('SU', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
+                  InkWell(
+                    onTap: () => onAction('photo'),
+                    borderRadius: BorderRadius.circular(999),
+                    child: CircleAvatar(
+                      radius: 34,
+                      backgroundColor: _lime.withOpacity(0.25),
+                      child: const Text('SU', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   const Expanded(
@@ -137,6 +141,7 @@ class ProfileScreen extends StatelessWidget {
             final post = posts[index];
             return InkWell(
               onTap: () => onAction('post:${post.title}'),
+              onLongPress: () => onAction('post-menu:${post.title}'),
               borderRadius: BorderRadius.circular(14),
               child: Ink(
                 decoration: BoxDecoration(
