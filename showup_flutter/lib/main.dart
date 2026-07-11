@@ -390,7 +390,7 @@ class _ShowUpShellState extends State<ShowUpShell> {
       case 'save-empty':
         toast('먼저 촬영하거나 갤러리에서 영상을 선택하세요');
       case 'share':
-        toast('공유 링크를 준비했습니다 (프로토타입)');
+        openShare('DROP clip · show up');
       case 'share-empty':
         toast('공유할 영상이 없습니다');
       case 'drop-empty':
