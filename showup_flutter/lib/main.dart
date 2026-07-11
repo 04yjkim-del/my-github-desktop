@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'auth_screens.dart';
+import 'bet_screen.dart';
 import 'home_screen.dart';
 import 'vote_screen.dart';
 
@@ -80,9 +81,7 @@ class _ShowUpShellState extends State<ShowUpShell> {
   bool cameraNoticeSeen = false;
   bool rankingExpanded = false;
   int feedIndex = 0;
-  int predictionEditsLeft = 3;
   MainTab tab = MainTab.home;
-  final picks = <int, Challenge?>{1: null, 2: null, 3: null};
 
   void toast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -143,10 +142,11 @@ class _ShowUpShellState extends State<ShowUpShell> {
                   onAction: handleVoteAction,
                 ),
                 BetScreen(
-                  picks: picks,
-                  editsLeft: predictionEditsLeft,
-                  onPick: openPickSheet,
-                  onLock: lockPrediction,
+                  candidates: challenges.map(toHomeChallenge).toList(),
+                  onLock: (result) => toast(
+                    '예측 확정: 1.${result[1]!.title} / 2.${result[2]!.title} / 3.${result[3]!.title}',
+                  ),
+                  onAction: handleBetAction,
                 ),
                 RankScreen(expanded: rankingExpanded, onToggle: toggleRanking),
               ],
@@ -210,6 +210,17 @@ class _ShowUpShellState extends State<ShowUpShell> {
         toast('이미 다른 후보에 투표했습니다. 같은 버튼을 다시 누르면 취소됩니다.');
       case 'vote-cancel':
         toast('투표를 취소했습니다');
+      default:
+        break;
+    }
+  }
+
+  void handleBetAction(String action) {
+    switch (action) {
+      case 'bet-locked':
+        toast('이미 확정된 예측은 수정할 수 없습니다');
+      case 'bet-incomplete':
+        toast('1~3등을 모두 선택해 주세요');
       default:
         break;
     }
@@ -333,42 +344,6 @@ class _ShowUpShellState extends State<ShowUpShell> {
     );
   }
 
-  void openPickSheet(int rank) {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => ListView(
-        padding: const EdgeInsets.all(16),
-        children: challenges.take(5).map((challenge) {
-          final duplicate = picks.entries.any((entry) => entry.key != rank && entry.value == challenge);
-          return ListTile(
-            enabled: !duplicate,
-            title: Text(challenge.title),
-            subtitle: Text(challenge.handle),
-            onTap: duplicate ? null : () {
-              final changing = picks[rank] != null && picks[rank] != challenge;
-              if (changing && predictionEditsLeft <= 0) {
-                Navigator.pop(context);
-                toast('수정 횟수를 모두 사용했습니다');
-                return;
-              }
-              setState(() {
-                if (changing) predictionEditsLeft -= 1;
-                picks[rank] = challenge;
-              });
-              Navigator.pop(context);
-            },
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  void lockPrediction() {
-    final completed = picks.values.every((value) => value != null);
-    toast(completed ? '행운을 빕니다' : '1~3등을 모두 선택하세요');
-  }
-
   void toggleRanking() {
     setState(() => rankingExpanded = !rankingExpanded);
   }
@@ -406,43 +381,6 @@ class CameraScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class BetScreen extends StatelessWidget {
-  const BetScreen({
-    super.key,
-    required this.picks,
-    required this.editsLeft,
-    required this.onPick,
-    required this.onLock,
-  });
-
-  final Map<int, Challenge?> picks;
-  final int editsLeft;
-  final ValueChanged<int> onPick;
-  final VoidCallback onLock;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 104),
-      children: [
-        const Text('승부 예측', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
-        const Text('일요일 3PM부터 5:50PM까지. 1~3등을 모두 맞춰야 인정됩니다.'),
-        const SizedBox(height: 14),
-        for (final rank in [1, 2, 3])
-          Card(
-            child: ListTile(
-              title: Text('$rank등'),
-              subtitle: Text(picks[rank]?.title ?? '미선택'),
-              onTap: () => onPick(rank),
-            ),
-          ),
-        Text('수정 가능 $editsLeft회'),
-        FilledButton(onPressed: onLock, child: const Text('예측 확정')),
-      ],
     );
   }
 }
