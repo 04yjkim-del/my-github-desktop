@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'auth_screens.dart';
+import 'home_screen.dart';
 
 void main() {
   runApp(const ShowUpApp());
@@ -32,6 +33,16 @@ const challenges = <Challenge>[
   Challenge(title: 'Comedy Reaction Cut', handle: '@quick.laugh', views: 88000, likes: 10000, votes: 6020),
   Challenge(title: 'Glow Step Challenge', handle: '@show.runner', views: 92000, likes: 13000, votes: 5810),
 ];
+
+HomeChallenge toHomeChallenge(Challenge challenge) {
+  return HomeChallenge(
+    title: challenge.title,
+    handle: challenge.handle,
+    views: challenge.views,
+    likes: challenge.likes,
+    votes: challenge.votes,
+  );
+}
 
 class ShowUpApp extends StatelessWidget {
   const ShowUpApp({super.key});
@@ -117,7 +128,12 @@ class _ShowUpShellState extends State<ShowUpShell> {
             child: IndexedStack(
               index: tab.index,
               children: [
-                HomeScreen(onNext: nextFeed, challenge: challenges[feedIndex]),
+                HomeScreen(
+                  challenge: toHomeChallenge(challenges[feedIndex]),
+                  ranking: rankedChallenges(),
+                  onNext: nextFeed,
+                  onAction: handleHomeAction,
+                ),
                 CameraScreen(onUpload: handleUpload, onGallery: () => toast('갤러리 선택')),
                 VoteScreen(onVote: () => toast('투표를 해주셔서 감사합니다')),
                 BetScreen(
@@ -147,6 +163,35 @@ class _ShowUpShellState extends State<ShowUpShell> {
 
   void nextFeed() {
     setState(() => feedIndex = (feedIndex + 1) % challenges.length);
+  }
+
+  List<HomeChallenge> rankedChallenges() {
+    final rows = challenges.map(toHomeChallenge).toList()
+      ..sort((a, b) => b.score.compareTo(a.score));
+    return rows;
+  }
+
+  void handleHomeAction(String action) {
+    switch (action) {
+      case 'like':
+        toast('좋아요를 눌렀습니다');
+      case 'unlike':
+        toast('좋아요를 취소했습니다');
+      case 'comment':
+        toast('댓글 화면은 다음 단계에서 연결됩니다');
+      case 'report':
+        toast('신고가 접수되었습니다 (프로토타입)');
+      case 'share':
+        toast('공유 링크를 복사했습니다 (프로토타입)');
+      case 'notify':
+        toast('새 알림이 없습니다');
+      case 'search-empty':
+        toast('검색어를 입력해 주세요');
+      default:
+        if (action.startsWith('search:')) {
+          toast('프로필 검색: ${action.substring(7)}');
+        }
+    }
   }
 
   void handleUpload() {
@@ -308,118 +353,6 @@ class _ShowUpShellState extends State<ShowUpShell> {
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.challenge, required this.onNext});
-
-  final Challenge challenge;
-  final VoidCallback onNext;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 104),
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('show up weekly', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.black54)),
-                Text('오늘의 핫 챌린지', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
-              ],
-            ),
-            IconButton.filled(onPressed: () {}, icon: const Icon(Icons.settings)),
-          ],
-        ),
-        const SizedBox(height: 14),
-        FeedHero(challenge: challenge, onNext: onNext),
-        const SizedBox(height: 12),
-        const InfoGrid(),
-        const SizedBox(height: 12),
-        RankingPreview(items: challenges.take(3).toList()),
-      ],
-    );
-  }
-}
-
-class FeedHero extends StatelessWidget {
-  const FeedHero({super.key, required this.challenge, required this.onNext});
-
-  final Challenge challenge;
-  final VoidCallback onNext;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 560,
-      padding: const EdgeInsets.all(22),
-      decoration: darkGradient(28),
-      child: Stack(
-        children: [
-          const Positioned.fill(child: WordBackground(words: ['TREND', 'HYPE', 'MOVE', 'VOTE', 'FAME'])),
-          Positioned(
-            right: 0,
-            bottom: 96,
-            child: Column(
-              children: [
-                IconButton(onPressed: () {}, icon: const Icon(Icons.favorite_border, color: Colors.white)),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.chat_bubble_outline, color: Colors.white)),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.flag_outlined, color: Colors.white)),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.ios_share, color: Colors.white)),
-              ],
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Chip(label: Text('AUTO PLAY')),
-                Text(challenge.title, style: const TextStyle(color: Colors.white, fontSize: 42, height: 1, fontWeight: FontWeight.w900)),
-                Text('${challenge.handle} · 조회 ${challenge.views} · 좋아요 ${challenge.likes}', style: const TextStyle(color: Colors.white70)),
-                const SizedBox(height: 10),
-                OutlinedButton(onPressed: onNext, child: const Text('다음 피드')),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class InfoGrid extends StatelessWidget {
-  const InfoGrid({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    const items = [
-      ['1등', '100만원'], ['2등', '50만원'], ['3등', '30만원'], ['예선 투표', '금 6PM'], ['TOP5', '토 6PM'],
-      ['최종 발표', '일 6PM'], ['챌린지', '주간'], ['예측', '일 3-5:50PM'], ['쿠폰', '추첨 5명'], ['보상', '7일 이내'],
-    ];
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 2.4,
-      children: items.map((item) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(item[0], style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w700)),
-            Text(item[1], style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
-          ]),
-        ),
-      )).toList(),
-    );
-  }
-}
-
 class CameraScreen extends StatelessWidget {
   const CameraScreen({super.key, required this.onUpload, required this.onGallery});
 
@@ -575,29 +508,6 @@ class BottomNav extends StatelessWidget {
         NavigationDestination(icon: Icon(Icons.emoji_events_outlined), selectedIcon: Icon(Icons.emoji_events), label: 'Bet'),
         NavigationDestination(icon: Icon(Icons.leaderboard_outlined), selectedIcon: Icon(Icons.leaderboard), label: 'Rank'),
       ],
-    );
-  }
-}
-
-class RankingPreview extends StatelessWidget {
-  const RankingPreview({super.key, required this.items});
-
-  final List<Challenge> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('실시간 랭킹', style: TextStyle(fontWeight: FontWeight.w900)),
-            for (var i = 0; i < items.length; i++)
-              ListTile(dense: true, leading: Text('${i + 1}'), title: Text(items[i].title), trailing: Text('${items[i].score}점')),
-          ],
-        ),
-      ),
     );
   }
 }
