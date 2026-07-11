@@ -4,7 +4,10 @@ import 'auth_screens.dart';
 import 'bet_screen.dart';
 import 'camera_screen.dart';
 import 'home_screen.dart';
+import 'overlays.dart';
+import 'profile_screen.dart';
 import 'rank_screen.dart';
+import 'settings_screen.dart';
 import 'vote_screen.dart';
 
 void main() {
@@ -67,7 +70,7 @@ class ShowUpApp extends StatelessWidget {
   }
 }
 
-enum MainTab { home, camera, vote, bet, rank }
+enum MainTab { home, camera, vote, bet, rank, profile }
 
 class ShowUpShell extends StatefulWidget {
   const ShowUpShell({super.key});
@@ -81,6 +84,7 @@ class _ShowUpShellState extends State<ShowUpShell> {
   bool introVisible = true;
   bool signupMode = false;
   bool cameraNoticeSeen = false;
+  bool reelsVisible = false;
   int feedIndex = 0;
   MainTab tab = MainTab.home;
 
@@ -93,6 +97,39 @@ class _ShowUpShellState extends State<ShowUpShell> {
   void enterApp(String label) {
     setState(() => authVisible = false);
     toast('$label 완료');
+  }
+
+  void openReels() {
+    setState(() => reelsVisible = true);
+  }
+
+  void closeReels() {
+    setState(() => reelsVisible = false);
+  }
+
+  void openNotifications() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => const NotificationsSheet(),
+    );
+  }
+
+  void openComments(HomeChallenge challenge) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => CommentsSheet(challenge: challenge),
+    );
+  }
+
+  void openSettings() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => SettingsScreen(onAction: handleSettingsAction),
+      ),
+    );
   }
 
   void changeTab(MainTab next) {
@@ -132,7 +169,8 @@ class _ShowUpShellState extends State<ShowUpShell> {
                 HomeScreen(
                   challenge: toHomeChallenge(challenges[feedIndex]),
                   ranking: rankedChallenges(),
-                  onNext: nextFeed,
+                  onOpenReels: openReels,
+                  onNextFeed: nextFeed,
                   onAction: handleHomeAction,
                 ),
                 CameraScreen(
@@ -156,6 +194,11 @@ class _ShowUpShellState extends State<ShowUpShell> {
                   entries: challenges.map(toHomeChallenge).toList(),
                   onAction: handleRankAction,
                 ),
+                ProfileScreen(
+                  posts: challenges.map(toHomeChallenge).toList(),
+                  onAction: handleProfileAction,
+                  onOpenSettings: openSettings,
+                ),
               ],
             ),
           ),
@@ -170,6 +213,12 @@ class _ShowUpShellState extends State<ShowUpShell> {
           onSignup: () => enterApp('회원가입'),
           onForgot: openForgotDialog,
         ),
+        if (reelsVisible)
+          ReelsViewer(
+            challenge: toHomeChallenge(challenges[feedIndex]),
+            onClose: closeReels,
+            onAction: handleReelsAction,
+          ),
       ],
     );
   }
@@ -185,19 +234,20 @@ class _ShowUpShellState extends State<ShowUpShell> {
   }
 
   void handleHomeAction(String action) {
+    final current = toHomeChallenge(challenges[feedIndex]);
     switch (action) {
       case 'like':
         toast('좋아요를 눌렀습니다');
       case 'unlike':
         toast('좋아요를 취소했습니다');
       case 'comment':
-        toast('댓글 화면은 다음 단계에서 연결됩니다');
+        openComments(current);
       case 'report':
         toast('신고가 접수되었습니다 (프로토타입)');
       case 'share':
         toast('공유 링크를 복사했습니다 (프로토타입)');
       case 'notify':
-        toast('새 알림이 없습니다');
+        openNotifications();
       case 'search-empty':
         toast('검색어를 입력해 주세요');
       default:
@@ -207,10 +257,64 @@ class _ShowUpShellState extends State<ShowUpShell> {
     }
   }
 
+  void handleReelsAction(String action) {
+    final current = toHomeChallenge(challenges[feedIndex]);
+    switch (action) {
+      case 'comment':
+        openComments(current);
+      case 'like':
+        toast('좋아요를 눌렀습니다');
+      case 'report':
+        toast('신고가 접수되었습니다 (프로토타입)');
+      case 'share':
+        toast('공유 링크를 복사했습니다 (프로토타입)');
+      default:
+        break;
+    }
+  }
+
+  void handleProfileAction(String action) {
+    switch (action) {
+      case 'notify':
+        openNotifications();
+      case 'interest':
+        toast('Interest 목록 (프로토타입)');
+      case 'photo':
+        toast('프로필 사진 보기 (프로토타입)');
+      case 'copy-url':
+        toast('프로필 URL 복사됨');
+      case 'share-profile':
+        toast('프로필 공유 (프로토타입)');
+      case 'qr':
+        toast('QR 코드 (프로토타입)');
+      default:
+        if (action.startsWith('post:')) {
+          openReels();
+        }
+    }
+  }
+
+  void handleSettingsAction(String action) {
+    switch (action) {
+      case 'logout':
+        setState(() {
+          authVisible = true;
+          introVisible = false;
+          signupMode = false;
+          tab = MainTab.home;
+        });
+        toast('로그아웃되었습니다');
+      case 'withdraw':
+        toast('탈퇴 요청은 서버 연결 후 처리됩니다');
+      default:
+        toast('${action.replaceAll('-', ' ')} (프로토타입)');
+    }
+  }
+
   void handleVoteAction(String action) {
     switch (action) {
       case 'notify':
-        toast('새 알림이 없습니다');
+        openNotifications();
       case 'vote-closed':
         toast('투표가 마감되었습니다');
       case 'vote-already':
@@ -236,7 +340,7 @@ class _ShowUpShellState extends State<ShowUpShell> {
   void handleRankAction(String action) {
     switch (action) {
       case 'settings':
-        toast('설정 화면은 다음 단계에서 연결됩니다');
+        openSettings();
       case 'winners':
         toast('예측 당첨자는 일요일 6PM 이후 발표됩니다');
       default:
@@ -411,11 +515,12 @@ class BottomNav extends StatelessWidget {
       selectedIndex: current.index,
       onDestinationSelected: (index) => onTap(MainTab.values[index]),
       destinations: const [
-        NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
+        NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Feed'),
         NavigationDestination(icon: Icon(Icons.add_circle_outline), selectedIcon: Icon(Icons.add_circle), label: 'DROP'),
         NavigationDestination(icon: Icon(Icons.how_to_vote_outlined), selectedIcon: Icon(Icons.how_to_vote), label: 'Vote'),
-        NavigationDestination(icon: Icon(Icons.emoji_events_outlined), selectedIcon: Icon(Icons.emoji_events), label: 'Bet'),
-        NavigationDestination(icon: Icon(Icons.leaderboard_outlined), selectedIcon: Icon(Icons.leaderboard), label: 'Rank'),
+        NavigationDestination(icon: Icon(Icons.emoji_events_outlined), selectedIcon: Icon(Icons.emoji_events), label: 'Predict'),
+        NavigationDestination(icon: Icon(Icons.leaderboard_outlined), selectedIcon: Icon(Icons.leaderboard), label: 'Ranking'),
+        NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
       ],
     );
   }

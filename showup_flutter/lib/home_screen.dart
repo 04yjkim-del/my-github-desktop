@@ -10,13 +10,15 @@ class HomeScreen extends StatefulWidget {
     super.key,
     required this.challenge,
     required this.ranking,
-    required this.onNext,
+    required this.onOpenReels,
+    required this.onNextFeed,
     required this.onAction,
   });
 
   final HomeChallenge challenge;
   final List<HomeChallenge> ranking;
-  final VoidCallback onNext;
+  final VoidCallback onOpenReels;
+  final VoidCallback onNextFeed;
   final ValueChanged<String> onAction;
 
   @override
@@ -61,7 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
         HotHeroCard(
           challenge: widget.challenge,
           liked: _liked,
-          onOpen: widget.onNext,
+          onOpen: widget.onOpenReels,
+          onNext: widget.onNextFeed,
           onLike: () {
             setState(() => _liked = !_liked);
             widget.onAction(_liked ? 'like' : 'unlike');
@@ -199,6 +202,7 @@ class HotHeroCard extends StatelessWidget {
     required this.challenge,
     required this.liked,
     required this.onOpen,
+    required this.onNext,
     required this.onLike,
     required this.onComment,
     required this.onReport,
@@ -208,6 +212,7 @@ class HotHeroCard extends StatelessWidget {
   final HomeChallenge challenge;
   final bool liked;
   final VoidCallback onOpen;
+  final VoidCallback onNext;
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onReport;
@@ -321,7 +326,7 @@ class HotHeroCard extends StatelessWidget {
                         foregroundColor: Colors.white,
                         side: const BorderSide(color: Colors.white38),
                       ),
-                      onPressed: onOpen,
+                      onPressed: onNext,
                       child: const Text('Next feed'),
                     ),
                   ],
