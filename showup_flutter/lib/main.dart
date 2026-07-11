@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'api/api_exception.dart';
+import 'api/models.dart';
+import 'api/showup_api.dart';
 import 'auth_screens.dart';
 import 'bet_screen.dart';
 import 'camera_screen.dart';
@@ -13,43 +16,6 @@ import 'vote_screen.dart';
 
 void main() {
   runApp(const ShowUpApp());
-}
-
-class Challenge {
-  const Challenge({
-    required this.title,
-    required this.handle,
-    required this.views,
-    required this.likes,
-    required this.votes,
-  });
-
-  final String title;
-  final String handle;
-  final int views;
-  final int likes;
-  final int votes;
-
-  int get score => (views + likes * 0.2).round();
-}
-
-const challenges = <Challenge>[
-  Challenge(title: 'K-pop Hook Dance', handle: '@dance.signal', views: 184000, likes: 24000, votes: 8240),
-  Challenge(title: 'One Take Fit Check', handle: '@daily.fit', views: 139000, likes: 18000, votes: 7690),
-  Challenge(title: 'Street Move Battle', handle: '@move.ground', views: 121000, likes: 15000, votes: 7120),
-  Challenge(title: 'Voice Sync Challenge', handle: '@sync.room', views: 96000, likes: 12000, votes: 6540),
-  Challenge(title: 'Comedy Reaction Cut', handle: '@quick.laugh', views: 88000, likes: 10000, votes: 6020),
-  Challenge(title: 'Glow Step Challenge', handle: '@show.runner', views: 92000, likes: 13000, votes: 5810),
-];
-
-HomeChallenge toHomeChallenge(Challenge challenge) {
-  return HomeChallenge(
-    title: challenge.title,
-    handle: challenge.handle,
-    views: challenge.views,
-    likes: challenge.likes,
-    votes: challenge.votes,
-  );
 }
 
 class ShowUpApp extends StatelessWidget {
@@ -81,13 +47,63 @@ class ShowUpShell extends StatefulWidget {
 }
 
 class _ShowUpShellState extends State<ShowUpShell> {
+  final ShowUpApi api = ShowUpApi();
+
   bool authVisible = true;
   bool introVisible = true;
   bool signupMode = false;
   bool cameraNoticeSeen = false;
   bool reelsVisible = false;
+  bool booting = true;
   int feedIndex = 0;
   MainTab tab = MainTab.home;
+
+  @override
+  void initState() {
+    super.initState();
+    _boot();
+  }
+
+  Future<void> _boot() async {
+    await api.init();
+    if (!mounted) return;
+    setState(() {
+      booting = false;
+      authVisible = api.currentUser == null;
+      introVisible = authVisible;
+    });
+    _showApiModeToast();
+  }
+
+  List<HomeChallenge> get _feed => api.feed;
+  List<HomeChallenge> get _ranking => api.ranking;
+  List<HomeChallenge> get _candidates => api.candidates;
+
+  HomeChallenge get _currentFeedItem {
+    if (_feed.isEmpty) return const HomeChallenge(title: 'No feed', handle: '@showup', views: 0, likes: 0, votes: 0);
+    return _feed[feedIndex % _feed.length];
+  }
+
+  String? get _votedCandidateTitle {
+    final votedId = api.votedCandidateId;
+    if (votedId == null) return null;
+    for (final item in _candidates) {
+      if (item.id == votedId || item.title == votedId) return item.title;
+    }
+    return votedId;
+  }
+
+  Map<int, HomeChallenge>? get _predictionPicks {
+    final prediction = api.prediction;
+    if (prediction.first == null && prediction.second == null && prediction.third == null) {
+      return null;
+    }
+    return {
+      if (prediction.first != null) 1: prediction.first!,
+      if (prediction.second != null) 2: prediction.second!,
+      if (prediction.third != null) 3: prediction.third!,
+    };
+  }
 
   void toast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -95,9 +111,39 @@ class _ShowUpShellState extends State<ShowUpShell> {
     );
   }
 
-  void enterApp(String label) {
+  void _showApiModeToast() {
+    if (api.usingMock) {
+      toast(api.lastInfoMessage ?? '서버 없음 · 샘플 데이터로 표시합니다');
+    }
+  }
+
+  Future<void> _refreshUi() async {
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  Future<void> handleLogin(String loginId, String password) async {
+    await api.login(loginId, password);
+    if (!mounted) return;
     setState(() => authVisible = false);
-    toast('$label 완료');
+    toast('로그인 완료');
+    _showApiModeToast();
+  }
+
+  Future<void> handleSignup(SignupPayload payload) async {
+    await api.signup(payload);
+    if (!mounted) return;
+    setState(() => authVisible = false);
+    toast('회원가입 완료');
+    _showApiModeToast();
+  }
+
+  Future<String> handleSendPhoneCode(String phone) {
+    return api.sendSignupPhoneCode(phone);
+  }
+
+  Future<String> handleVerifyPhone(String phone, String code) {
+    return api.verifySignupPhone(phone, code);
   }
 
   void openReels() {
@@ -168,6 +214,12 @@ class _ShowUpShellState extends State<ShowUpShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (booting) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Stack(
       children: [
         Scaffold(
@@ -177,8 +229,8 @@ class _ShowUpShellState extends State<ShowUpShell> {
               index: tab.index,
               children: [
                 HomeScreen(
-                  challenge: toHomeChallenge(challenges[feedIndex]),
-                  ranking: rankedChallenges(),
+                  challenge: _currentFeedItem,
+                  ranking: _ranking,
                   onOpenReels: openReels,
                   onNextFeed: nextFeed,
                   onAction: handleHomeAction,
@@ -188,24 +240,26 @@ class _ShowUpShellState extends State<ShowUpShell> {
                   onAction: handleCameraAction,
                 ),
                 VoteScreen(
-                  candidates: challenges.map(toHomeChallenge).toList(),
-                  ranking: rankedChallenges(),
-                  onVote: (candidate) => toast('${candidate.title}에 투표했습니다'),
+                  candidates: _candidates,
+                  ranking: _ranking,
+                  externalPhase: api.votePhase,
+                  votedCandidateTitle: _votedCandidateTitle,
+                  onVote: handleVote,
                   onAction: handleVoteAction,
                 ),
                 BetScreen(
-                  candidates: challenges.map(toHomeChallenge).toList(),
-                  onLock: (result) => toast(
-                    '예측 확정: 1.${result[1]!.title} / 2.${result[2]!.title} / 3.${result[3]!.title}',
-                  ),
+                  candidates: _candidates,
+                  externalLocked: api.prediction.locked,
+                  externalPicks: _predictionPicks,
+                  onLock: handleBetLock,
                   onAction: handleBetAction,
                 ),
                 RankScreen(
-                  entries: challenges.map(toHomeChallenge).toList(),
+                  entries: _ranking,
                   onAction: handleRankAction,
                 ),
                 ProfileScreen(
-                  posts: challenges.map(toHomeChallenge).toList(),
+                  posts: _feed,
                   onAction: handleProfileAction,
                   onOpenSettings: openSettings,
                 ),
@@ -214,18 +268,21 @@ class _ShowUpShellState extends State<ShowUpShell> {
           ),
           bottomNavigationBar: BottomNav(current: tab, onTap: changeTab),
         ),
-        if (authVisible) AuthGate(
-          introVisible: introVisible,
-          signupMode: signupMode,
-          onStart: () => setState(() => introVisible = false),
-          onToggle: (value) => setState(() => signupMode = value),
-          onLogin: () => enterApp('로그인'),
-          onSignup: () => enterApp('회원가입'),
-          onForgot: openForgotDialog,
-        ),
+        if (authVisible)
+          AuthGate(
+            introVisible: introVisible,
+            signupMode: signupMode,
+            onStart: () => setState(() => introVisible = false),
+            onToggle: (value) => setState(() => signupMode = value),
+            onLogin: handleLogin,
+            onSignup: handleSignup,
+            onSendPhoneCode: handleSendPhoneCode,
+            onVerifyPhone: handleVerifyPhone,
+            onForgot: openForgotDialog,
+          ),
         if (reelsVisible)
           ReelsViewer(
-            challenge: toHomeChallenge(challenges[feedIndex]),
+            challenge: _currentFeedItem,
             onClose: closeReels,
             onAction: handleReelsAction,
           ),
@@ -234,22 +291,49 @@ class _ShowUpShellState extends State<ShowUpShell> {
   }
 
   void nextFeed() {
-    setState(() => feedIndex = (feedIndex + 1) % challenges.length);
+    if (_feed.isEmpty) return;
+    setState(() => feedIndex = (feedIndex + 1) % _feed.length);
   }
 
-  List<HomeChallenge> rankedChallenges() {
-    final rows = challenges.map(toHomeChallenge).toList()
-      ..sort((a, b) => b.score.compareTo(a.score));
-    return rows;
+  Future<void> handleVote(HomeChallenge candidate) async {
+    try {
+      if (api.votedCandidateId == (candidate.id ?? candidate.title)) {
+        await api.cancelVote();
+        toast('투표를 취소했습니다');
+      } else {
+        await api.castVote(candidate);
+        toast('${candidate.title}에 투표했습니다');
+      }
+      await _refreshUi();
+    } on ApiException catch (err) {
+      toast(err.message);
+    }
+  }
+
+  Future<void> handleBetLock(Map<int, HomeChallenge> result) async {
+    final first = result[1];
+    final second = result[2];
+    final third = result[3];
+    if (first == null || second == null || third == null) {
+      toast('1~3등을 모두 선택해 주세요');
+      return;
+    }
+    try {
+      await api.submitPrediction(first: first, second: second, third: third);
+      toast('예측 확정: 1.${first.title} / 2.${second.title} / 3.${third.title}');
+      await _refreshUi();
+    } on ApiException catch (err) {
+      toast(err.message);
+    }
   }
 
   void handleHomeAction(String action) {
-    final current = toHomeChallenge(challenges[feedIndex]);
+    final current = _currentFeedItem;
     switch (action) {
       case 'like':
-        toast('좋아요를 눌렀습니다');
+        _toggleLike(current, true);
       case 'unlike':
-        toast('좋아요를 취소했습니다');
+        _toggleLike(current, false);
       case 'comment':
         openComments(current);
       case 'report':
@@ -262,18 +346,41 @@ class _ShowUpShellState extends State<ShowUpShell> {
         toast('검색어를 입력해 주세요');
       default:
         if (action.startsWith('search:')) {
-          toast('프로필 검색: ${action.substring(7)}');
+          _runSearch(action.substring(7));
         }
     }
   }
 
+  Future<void> _toggleLike(HomeChallenge item, bool liked) async {
+    final videoId = item.id;
+    if (videoId == null) {
+      toast(liked ? '좋아요를 눌렀습니다' : '좋아요를 취소했습니다');
+      return;
+    }
+    try {
+      await api.toggleLike(videoId, liked);
+      toast(liked ? '좋아요를 눌렀습니다' : '좋아요를 취소했습니다');
+    } on ApiException catch (err) {
+      toast(err.message);
+    }
+  }
+
+  Future<void> _runSearch(String query) async {
+    try {
+      final results = await api.searchProfiles(query);
+      toast(results.isEmpty ? '검색 결과가 없습니다' : '검색 결과 ${results.length}건');
+    } on ApiException catch (err) {
+      toast(err.message);
+    }
+  }
+
   void handleReelsAction(String action) {
-    final current = toHomeChallenge(challenges[feedIndex]);
+    final current = _currentFeedItem;
     switch (action) {
       case 'comment':
         openComments(current);
       case 'like':
-        toast('좋아요를 눌렀습니다');
+        _toggleLike(current, true);
       case 'report':
         toast('신고가 접수되었습니다 (프로토타입)');
       case 'share':
@@ -309,9 +416,11 @@ class _ShowUpShellState extends State<ShowUpShell> {
     }
   }
 
-  void handleSettingsAction(String action) {
+  Future<void> handleSettingsAction(String action) async {
     switch (action) {
       case 'logout':
+        await api.logout();
+        if (!mounted) return;
         setState(() {
           authVisible = true;
           introVisible = false;
@@ -319,8 +428,20 @@ class _ShowUpShellState extends State<ShowUpShell> {
           tab = MainTab.home;
         });
         toast('로그아웃되었습니다');
+        _showApiModeToast();
       case 'withdraw':
-        toast('탈퇴 요청은 서버 연결 후 처리됩니다');
+        try {
+          await api.withdraw();
+          if (!mounted) return;
+          setState(() {
+            authVisible = true;
+            introVisible = false;
+            tab = MainTab.home;
+          });
+          toast('탈퇴 요청이 접수되었습니다');
+        } on ApiException catch (err) {
+          toast(err.message);
+        }
       case 'terms':
         ExtraModals.showTerms(context);
       case 'prize-claim':
@@ -339,9 +460,19 @@ class _ShowUpShellState extends State<ShowUpShell> {
       case 'vote-already':
         toast('이미 다른 후보에 투표했습니다. 같은 버튼을 다시 누르면 취소됩니다.');
       case 'vote-cancel':
-        toast('투표를 취소했습니다');
+        _cancelVoteFromApi();
       default:
         break;
+    }
+  }
+
+  Future<void> _cancelVoteFromApi() async {
+    try {
+      await api.cancelVote();
+      await _refreshUi();
+      toast('투표를 취소했습니다');
+    } on ApiException catch (err) {
+      toast(err.message);
     }
   }
 
@@ -405,35 +536,40 @@ class _ShowUpShellState extends State<ShowUpShell> {
   void handleUpload() {
     ExtraModals.showAdBreak(
       context,
-      onComplete: () => toast('AI 검수 중'),
+      onComplete: () => toast('AI 검수 중 (업로드 API는 다음 단계)'),
     );
   }
 
   void openForgotDialog() {
+    final nameController = TextEditingController();
+    final contactController = TextEditingController();
+
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff12151c),
         title: const Text('Forgot password?', style: TextStyle(color: Colors.white)),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               '이름과 전화번호(또는 이메일)로 본인 확인 후 비밀번호를 재설정합니다.',
               style: TextStyle(color: Colors.white70, fontSize: 13),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
+              controller: nameController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
                 labelText: 'Name',
                 labelStyle: TextStyle(color: Colors.white70),
                 enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
               ),
             ),
             TextField(
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
+              controller: contactController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
                 labelText: 'Phone or email',
                 labelStyle: TextStyle(color: Colors.white70),
                 enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
@@ -451,9 +587,17 @@ class _ShowUpShellState extends State<ShowUpShell> {
               backgroundColor: const Color(0xffd7ff38),
               foregroundColor: Colors.black,
             ),
-            onPressed: () {
-              Navigator.pop(context);
-              openResetPasswordDialog();
+            onPressed: () async {
+              try {
+                await api.forgotPassword(
+                  name: nameController.text.trim(),
+                  contact: contactController.text.trim(),
+                );
+                if (context.mounted) Navigator.pop(context);
+                openResetPasswordDialog();
+              } catch (err) {
+                toast(err.toString().replaceFirst('ApiException: ', ''));
+              }
             },
             child: const Text('Next'),
           ),
@@ -463,27 +607,32 @@ class _ShowUpShellState extends State<ShowUpShell> {
   }
 
   void openResetPasswordDialog() {
+    final passwordController = TextEditingController();
+    final confirmController = TextEditingController();
+
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff12151c),
         title: const Text('New password', style: TextStyle(color: Colors.white)),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              controller: passwordController,
               obscureText: true,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
                 labelText: 'New password',
                 labelStyle: TextStyle(color: Colors.white70),
                 enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
               ),
             ),
             TextField(
+              controller: confirmController,
               obscureText: true,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
                 labelText: 'Confirm password',
                 labelStyle: TextStyle(color: Colors.white70),
                 enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
@@ -497,9 +646,21 @@ class _ShowUpShellState extends State<ShowUpShell> {
               backgroundColor: const Color(0xffd7ff38),
               foregroundColor: Colors.black,
             ),
-            onPressed: () {
-              Navigator.pop(context);
-              toast('비밀번호가 변경되었습니다');
+            onPressed: () async {
+              if (passwordController.text != confirmController.text) {
+                toast('비밀번호가 서로 다릅니다');
+                return;
+              }
+              try {
+                await api.resetPassword(
+                  token: 'forgot-flow',
+                  password: passwordController.text,
+                );
+                if (context.mounted) Navigator.pop(context);
+                toast('비밀번호가 변경되었습니다');
+              } catch (err) {
+                toast(err.toString().replaceFirst('ApiException: ', ''));
+              }
             },
             child: const Text('Save'),
           ),
@@ -507,7 +668,6 @@ class _ShowUpShellState extends State<ShowUpShell> {
       ),
     );
   }
-
 }
 
 class BottomNav extends StatelessWidget {

@@ -12,19 +12,48 @@ class BetScreen extends StatefulWidget {
     required this.candidates,
     required this.onLock,
     required this.onAction,
+    this.externalLocked = false,
+    this.externalPicks,
   });
 
   final List<HomeChallenge> candidates;
   final ValueChanged<Map<int, HomeChallenge>> onLock;
   final ValueChanged<String> onAction;
+  final bool externalLocked;
+  final Map<int, HomeChallenge>? externalPicks;
 
   @override
   State<BetScreen> createState() => _BetScreenState();
 }
 
 class _BetScreenState extends State<BetScreen> {
-  final picks = <int, HomeChallenge?>{1: null, 2: null, 3: null};
-  bool locked = false;
+  late final picks = <int, HomeChallenge?>{1: null, 2: null, 3: null};
+  late bool locked;
+
+  @override
+  void initState() {
+    super.initState();
+    locked = widget.externalLocked;
+    _applyExternalPicks(widget.externalPicks);
+  }
+
+  @override
+  void didUpdateWidget(covariant BetScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.externalLocked != oldWidget.externalLocked) {
+      locked = widget.externalLocked;
+    }
+    if (widget.externalPicks != oldWidget.externalPicks) {
+      _applyExternalPicks(widget.externalPicks);
+    }
+  }
+
+  void _applyExternalPicks(Map<int, HomeChallenge>? externalPicks) {
+    if (externalPicks == null) return;
+    for (final entry in externalPicks.entries) {
+      picks[entry.key] = entry.value;
+    }
+  }
 
   bool get _allPicked => picks.values.every((value) => value != null);
 

@@ -84,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class HomeChallenge {
   const HomeChallenge({
+    this.id,
     required this.title,
     required this.handle,
     required this.views,
@@ -91,6 +92,7 @@ class HomeChallenge {
     required this.votes,
   });
 
+  final String? id;
   final String title;
   final String handle;
   final int views;
@@ -98,6 +100,24 @@ class HomeChallenge {
   final int votes;
 
   int get score => (views + likes * 0.2).round();
+
+  HomeChallenge copyWith({
+    String? id,
+    String? title,
+    String? handle,
+    int? views,
+    int? likes,
+    int? votes,
+  }) {
+    return HomeChallenge(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      handle: handle ?? this.handle,
+      views: views ?? this.views,
+      likes: likes ?? this.likes,
+      votes: votes ?? this.votes,
+    );
+  }
 }
 
 class _HomeHeader extends StatelessWidget {

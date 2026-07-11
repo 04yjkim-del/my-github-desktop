@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'api/models.dart';
+
 const _lime = Color(0xffd7ff38);
 const _bg = Color(0xff050608);
 const _card = Color(0xff12151c);
@@ -17,6 +19,8 @@ class AuthGate extends StatelessWidget {
     required this.onToggle,
     required this.onLogin,
     required this.onSignup,
+    required this.onSendPhoneCode,
+    required this.onVerifyPhone,
     required this.onForgot,
   });
 
@@ -24,8 +28,10 @@ class AuthGate extends StatelessWidget {
   final bool signupMode;
   final VoidCallback onStart;
   final ValueChanged<bool> onToggle;
-  final VoidCallback onLogin;
-  final VoidCallback onSignup;
+  final Future<void> Function(String loginId, String password) onLogin;
+  final Future<void> Function(SignupPayload payload) onSignup;
+  final Future<String> Function(String phone) onSendPhoneCode;
+  final Future<String> Function(String phone, String code) onVerifyPhone;
   final VoidCallback onForgot;
 
   @override
@@ -40,6 +46,8 @@ class AuthGate extends StatelessWidget {
                 onToggle: onToggle,
                 onLogin: onLogin,
                 onSignup: onSignup,
+                onSendPhoneCode: onSendPhoneCode,
+                onVerifyPhone: onVerifyPhone,
                 onForgot: onForgot,
               ),
       ),
@@ -343,13 +351,17 @@ class AuthPanel extends StatelessWidget {
     required this.onToggle,
     required this.onLogin,
     required this.onSignup,
+    required this.onSendPhoneCode,
+    required this.onVerifyPhone,
     required this.onForgot,
   });
 
   final bool signupMode;
   final ValueChanged<bool> onToggle;
-  final VoidCallback onLogin;
-  final VoidCallback onSignup;
+  final Future<void> Function(String loginId, String password) onLogin;
+  final Future<void> Function(SignupPayload payload) onSignup;
+  final Future<String> Function(String phone) onSendPhoneCode;
+  final Future<String> Function(String phone, String code) onVerifyPhone;
   final VoidCallback onForgot;
 
   @override
@@ -406,7 +418,11 @@ class AuthPanel extends StatelessWidget {
                 border: Border.all(color: Colors.white10),
               ),
               child: signupMode
-                  ? SignupForm(onSubmit: onSignup)
+                  ? SignupForm(
+                      onSubmit: onSignup,
+                      onSendPhoneCode: onSendPhoneCode,
+                      onVerifyPhone: onVerifyPhone,
+                    )
                   : LoginForm(onLogin: onLogin, onForgot: onForgot),
             ),
           ),
@@ -419,7 +435,7 @@ class AuthPanel extends StatelessWidget {
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key, required this.onLogin, required this.onForgot});
 
-  final VoidCallback onLogin;
+  final Future<void> Function(String loginId, String password) onLogin;
   final VoidCallback onForgot;
 
   @override
@@ -430,6 +446,7 @@ class _LoginFormState extends State<LoginForm> {
   final _idController = TextEditingController();
   final _passwordController = TextEditingController();
   String? _error;
+  bool _loading = false;
 
   @override
   void dispose() {
@@ -438,15 +455,26 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final id = _idController.text.trim();
     final password = _passwordController.text;
     if (id.isEmpty || password.isEmpty) {
       setState(() => _error = '아이디와 비밀번호를 입력해 주세요.');
       return;
     }
-    setState(() => _error = null);
-    widget.onLogin();
+    setState(() {
+      _error = null;
+      _loading = true;
+    });
+    try {
+      await widget.onLogin(id, password);
+    } catch (err) {
+      if (mounted) {
+        setState(() => _error = err.toString().replaceFirst('ApiException: ', ''));
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -489,8 +517,8 @@ class _LoginFormState extends State<LoginForm> {
               textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
-            onPressed: _submit,
-            child: const Text('Login'),
+            onPressed: _loading ? null : _submit,
+            child: Text(_loading ? 'Logging in...' : 'Login'),
           ),
         ),
         Align(
@@ -509,9 +537,16 @@ class _LoginFormState extends State<LoginForm> {
 }
 
 class SignupForm extends StatefulWidget {
-  const SignupForm({super.key, required this.onSubmit});
+  const SignupForm({
+    super.key,
+    required this.onSubmit,
+    required this.onSendPhoneCode,
+    required this.onVerifyPhone,
+  });
 
-  final VoidCallback onSubmit;
+  final Future<void> Function(SignupPayload payload) onSubmit;
+  final Future<String> Function(String phone) onSendPhoneCode;
+  final Future<String> Function(String phone, String code) onVerifyPhone;
 
   @override
   State<SignupForm> createState() => _SignupFormState();
@@ -533,6 +568,8 @@ class _SignupFormState extends State<SignupForm> {
   bool _termsMarketing = false;
   bool _codeSent = false;
   bool _phoneVerified = false;
+  String? _signupPhoneProof;
+  bool _loading = false;
   String? _hint;
   String? _error;
 
@@ -563,7 +600,7 @@ class _SignupFormState extends State<SignupForm> {
         _termsPrivacy;
   }
 
-  void _sendCode() {
+  Future<void> _sendCode() async {
     final phone = _phone.text.trim();
     if (phone.length < 8) {
       setState(() => _error = '휴대폰 번호를 확인해 주세요.');
@@ -571,35 +608,88 @@ class _SignupFormState extends State<SignupForm> {
     }
     setState(() {
       _error = null;
-      _codeSent = true;
-      _phoneVerified = false;
-      _hint = '인증번호가 발송되었습니다. (프로토타입: 아무 6자리 입력)';
+      _loading = true;
     });
+    try {
+      final message = await widget.onSendPhoneCode(phone);
+      setState(() {
+        _codeSent = true;
+        _phoneVerified = false;
+        _signupPhoneProof = null;
+        _hint = message;
+      });
+    } catch (err) {
+      setState(() => _error = err.toString().replaceFirst('ApiException: ', ''));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
-  void _confirmCode() {
+  Future<void> _confirmCode() async {
     if (_code.text.trim().length != 6) {
       setState(() => _error = '인증번호 6자리를 입력해 주세요.');
       return;
     }
     setState(() {
       _error = null;
-      _phoneVerified = true;
-      _hint = '휴대폰 인증이 완료되었습니다.';
+      _loading = true;
     });
+    try {
+      final proof = await widget.onVerifyPhone(_phone.text.trim(), _code.text.trim());
+      setState(() {
+        _phoneVerified = true;
+        _signupPhoneProof = proof;
+        _hint = '휴대폰 인증이 완료되었습니다.';
+      });
+    } catch (err) {
+      setState(() => _error = err.toString().replaceFirst('ApiException: ', ''));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
-  void _submit() {
+  String _birthToApiFormat(String input) {
+    final digits = input.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.length != 8) return input;
+    return '${digits.substring(4, 8)}-${digits.substring(0, 2)}-${digits.substring(2, 4)}';
+  }
+
+  Future<void> _submit() async {
     if (_password.text != _passwordConfirm.text) {
       setState(() => _error = '비밀번호가 서로 다릅니다.');
       return;
     }
-    if (!_canCreate) {
+    if (!_canCreate || _signupPhoneProof == null) {
       setState(() => _error = '필수 항목·휴대폰 인증·약관 동의를 완료해 주세요.');
       return;
     }
-    setState(() => _error = null);
-    widget.onSubmit();
+    setState(() {
+      _error = null;
+      _loading = true;
+    });
+    try {
+      await widget.onSubmit(
+        SignupPayload(
+          name: _name.text.trim(),
+          birthDate: _birthToApiFormat(_birth.text.trim()),
+          email: _email.text.trim(),
+          username: _username.text.trim(),
+          loginId: _loginId.text.trim(),
+          password: _password.text,
+          phone: _phone.text.trim(),
+          signupPhoneProof: _signupPhoneProof!,
+          termsService: _termsService,
+          termsPrivacy: _termsPrivacy,
+          termsMarketing: _termsMarketing,
+        ),
+      );
+    } catch (err) {
+      if (mounted) {
+        setState(() => _error = err.toString().replaceFirst('ApiException: ', ''));
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -681,8 +771,8 @@ class _SignupFormState extends State<SignupForm> {
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            onPressed: _phoneVerified ? null : _sendCode,
-            child: Text(_phoneVerified ? 'Phone verified' : 'Verify phone'),
+            onPressed: (_phoneVerified || _loading) ? null : _sendCode,
+            child: Text(_phoneVerified ? 'Phone verified' : (_loading ? 'Sending...' : 'Verify phone')),
           ),
         ),
         if (_codeSent && !_phoneVerified) ...[
@@ -703,8 +793,8 @@ class _SignupFormState extends State<SignupForm> {
                 side: const BorderSide(color: Colors.white24),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              onPressed: _confirmCode,
-              child: const Text('Confirm code'),
+              onPressed: _loading ? null : _confirmCode,
+              child: Text(_loading ? 'Checking...' : 'Confirm code'),
             ),
           ),
         ],
@@ -776,8 +866,8 @@ class _SignupFormState extends State<SignupForm> {
               textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
-            onPressed: _canCreate ? _submit : null,
-            child: const Text('Create account'),
+            onPressed: (_canCreate && !_loading) ? _submit : null,
+            child: Text(_loading ? 'Creating...' : 'Create account'),
           ),
         ),
       ],

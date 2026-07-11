@@ -16,12 +16,16 @@ class VoteScreen extends StatefulWidget {
     required this.ranking,
     required this.onVote,
     required this.onAction,
+    this.externalPhase,
+    this.votedCandidateTitle,
   });
 
   final List<HomeChallenge> candidates;
   final List<HomeChallenge> ranking;
   final ValueChanged<HomeChallenge> onVote;
   final ValueChanged<String> onAction;
+  final VotePhase? externalPhase;
+  final String? votedCandidateTitle;
 
   @override
   State<VoteScreen> createState() => _VoteScreenState();
@@ -29,8 +33,26 @@ class VoteScreen extends StatefulWidget {
 
 class _VoteScreenState extends State<VoteScreen> {
   final _searchController = TextEditingController();
-  VotePhase _phase = VotePhase.general;
+  late VotePhase _phase;
   String? _votedTitle;
+
+  @override
+  void initState() {
+    super.initState();
+    _phase = widget.externalPhase ?? VotePhase.general;
+    _votedTitle = widget.votedCandidateTitle;
+  }
+
+  @override
+  void didUpdateWidget(covariant VoteScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.externalPhase != null && widget.externalPhase != oldWidget.externalPhase) {
+      _phase = widget.externalPhase!;
+    }
+    if (widget.votedCandidateTitle != oldWidget.votedCandidateTitle) {
+      _votedTitle = widget.votedCandidateTitle;
+    }
+  }
 
   @override
   void dispose() {
